@@ -10,7 +10,7 @@ class Presentation(Base):
     __tablename__ = "presentation"
 
     id = db.Column(db.BigInteger, primary_key=True)
-    creation_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    creation_date = db.Column(db.DateTime, default=datetime.now, nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
     url = db.Column(db.String(255), nullable=False)

@@ -35,7 +35,7 @@ class DropdownReview(discord.ui.Select):
             user = await partabot_client.fetch_user(self.view.presentation.author_id)
             await user.send(embeds=[presentation_embed, reason_embed])
         self.view.presentation.reviewed = True
-        self.view.presentation.review_date = datetime.utcnow()
+        self.view.presentation.review_date = datetime.now()
         self.view.presentation.accepted = False
         self.view.presentation.reviewed_by = interaction.user.id
         session.commit()
@@ -57,7 +57,7 @@ class Review(discord.ui.View):
     async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
         print(self.presentation.id, ": Accepted")
         self.presentation.reviewed = True
-        self.presentation.review_date = datetime.utcnow()
+        self.presentation.review_date = datetime.now()
         self.presentation.accepted = True
         self.presentation.reviewed_by = interaction.user.id
         session.commit()

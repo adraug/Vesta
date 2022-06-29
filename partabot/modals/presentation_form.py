@@ -3,9 +3,9 @@ import traceback
 import discord
 from sqlalchemy import select
 
-from partabot import partabot_client, REVIEW_CHANNEL, session
-from partabot.views import Review
-from partabot.tables import Presentation, User
+from .. import partabot_client, REVIEW_CHANNEL, session
+from ..views import Review
+from ..tables import Presentation, User
 
 url_regex = r'[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 http_regex = r'https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
