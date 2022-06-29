@@ -14,7 +14,7 @@ async def presentation(interaction: discord.Interaction):
     author = session.scalar(r)
     if author and author.presentations_banned:
         return await interaction.response.send_message(
-            "Vous n'avez pas les permissions soumettre une présentation",
+            "Vous avez été banni du système de présentation",
             ephemeral=True)
     await interaction.response.send_modal(PresentationForm())
 
@@ -108,17 +108,18 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
 @presentation_manage.command(description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
-    r = select(User).where(User.presentations_banned == True).offset(100 * page).fetch(100)
+    r = select(User).where(User.presentations_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 
     banlist = ""
     for user in banned_users:
-        banlist += f"{user.name}#{user.discriminator}\n"
+        banlist += f"{user.name}\n"
 
     banned_embed = discord.Embed(title="Membres bannis des présentations", description=banlist)
     banned_embed.set_footer(text=f"Page {page}")
 
-    await interaction.response.send_message(embed=banned_embed)
+    await interaction.response.send_message(embed=banned_embed,
+                                            allowed_mentions=discord.AllowedMentions().none())
 
 
 partabot_client.tree.add_command(presentation_manage, guild=GUILD)

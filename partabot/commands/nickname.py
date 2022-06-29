@@ -19,7 +19,7 @@ async def nickname(interaction: discord.Interaction, name: str):
     author = session.scalar(r)
     if author and author.nicknames_banned:
         return await interaction.response.send_message(
-            "Vous n'avez pas les permissions pour vous rename",
+            "Vous avez été banni du système de rename",
             ephemeral=True)
     if not re.match(regex_name, name):
         response_embed = discord.Embed(color=int("FF4444", 16), title="⚠️ Pseudo incorrect !",
@@ -100,17 +100,18 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
 @nick_manage.command(description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
-    r = select(User).where(User.nicknames_banned == True).offset(100 * page).fetch(100)
+    r = select(User).where(User.nicknames_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 
     banlist = ""
     for user in banned_users:
-        banlist += f"{user.name}#{user.discriminator}\n"
+        banlist += f"<@{user.id}>\n"
 
     banned_embed = discord.Embed(title="Membres bannis du nickname", description=banlist)
     banned_embed.set_footer(text=f"Page {page}")
 
-    await interaction.response.send_message(embed=banned_embed)
+    await interaction.response.send_message(embed=banned_embed,
+                                            allowed_mentions=discord.AllowedMentions().none())
 
 
 partabot_client.tree.add_command(nick_manage, guild=GUILD)
