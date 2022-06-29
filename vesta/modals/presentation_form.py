@@ -20,8 +20,7 @@ class PresentationForm(discord.ui.Modal, title="Présentation"):
     description = discord.ui.TextInput(
         label="Description du projet",
         style=discord.TextStyle.long,
-        # min_length=100,
-        max_length=2950
+        min_length=100,
     )
 
     link = discord.ui.TextInput(

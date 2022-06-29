@@ -3,8 +3,9 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-from partabot import POSTGRES
+from vesta import POSTGRES
 from .presentation import Presentation
 from .users import User
+from .custom_commands import CustomCommand
 
 engine = create_engine(f"postgresql://{POSTGRES}", )

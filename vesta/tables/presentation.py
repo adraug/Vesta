@@ -1,6 +1,6 @@
 from discord import Embed
 import sqlalchemy as db
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from . import Base
