@@ -21,7 +21,8 @@ async def nickname(interaction: discord.Interaction, name: str):
         return await interaction.response.send_message(
             lang.get("nickname_banned", interaction.guild),
             ephemeral=True)
-    if not re.match(regex_name, name):
+
+    if not interaction.user.guild_permissions.manage_nicknames and not re.match(regex_name, name):
         response_embed = discord.Embed(color=int("FF4444", 16), title=lang.get("nickname_incorrect_title", interaction.guild),
                                        description=lang.get("nickname_incorrect_description", interaction.guild) + f"`{regex_name}`")
         return await interaction.response.send_message(embed=response_embed, ephemeral=True)

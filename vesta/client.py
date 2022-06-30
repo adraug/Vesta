@@ -15,6 +15,7 @@ with open("vesta/data/names.txt") as file:
 with open("vesta/data/adjectives.txt") as file:
     adjectives = file.read().split(", ")
 
+
 class Vesta(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
@@ -48,5 +49,5 @@ class Vesta(discord.Client):
             await member.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 
     async def on_member_update(self, before, after):
-        if not re.match(regex_name, after.display_name):
+        if not after.guild_permissions.manage_nicknames and not re.match(regex_name, after.display_name):
             await after.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
