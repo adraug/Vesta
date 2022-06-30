@@ -3,20 +3,27 @@ from discord import app_commands
 
 from typing import Optional
 
-from .. import partabot_client, GUILD, session
+from .. import vesta_client, session, lang
 from ..modals import PresentationForm
-from ..tables import Presentation, select, or_, User
+from ..tables import Presentation, select, or_, User, Guild
 
 
-@partabot_client.tree.command(description="Submit a presentation")
+@vesta_client.tree.command(description="Submit a presentation")
 async def presentation(interaction: discord.Interaction):
+
+    r = select(Guild).where(Guild.id == interaction.guild_id)
+    guild = session.scalar(r)
+    if not guild or not guild.review_channel or not guild.projects_channel:
+        return await interaction.response.send_message(
+            lang.get("presentations_not_available", interaction.guild), ephemeral=True)
+
     r = select(User).where(User.id == interaction.user.id)
     author = session.scalar(r)
     if author and author.presentations_banned:
         return await interaction.response.send_message(
-            "Vous avez été banni du système de présentation",
+            lang.get("presentations_banned", interaction.guild),
             ephemeral=True)
-    await interaction.response.send_modal(PresentationForm())
+    await interaction.response.send_modal(PresentationForm(interaction))
 
 
 @app_commands.guild_only()
@@ -26,10 +33,10 @@ class PresentationManage(app_commands.Group, name="presentationmanage", descript
     async def on_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
-                "You don't have the permissions to use this command", ephemeral=True)
+                lang.get("permissions_error", interaction.guild), ephemeral=True)
         else:
             print(error)
-            await interaction.response.send_message("Une erreur s'est produite", ephemeral=True)
+            await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 presentation_manage = PresentationManage()
@@ -40,19 +47,19 @@ presentation_manage = PresentationManage()
 async def show(interaction: discord.Interaction, research: Optional[str] = None, user: Optional[discord.Member] = None):
     if not (research or user):
         return await interaction.response.send_message(
-            "Merci de mettre au moins un des paramètres", ephemeral=True)
+            lang.get("minimum_one_parameter", interaction.guild), ephemeral=True)
     if user:
         r = select(Presentation).where(Presentation.author_id == user.id)
     else:
         if not research.isdecimal() or int(research) > 2 ** 63 - 1:
             return await interaction.response.send_message(
-                content="Merci d'entrez un nombre valide",
+                content=lang.get("invalid_number", interaction.guild),
                 ephemeral=True)
         r = select(Presentation).where(or_(Presentation.id == research, Presentation.author_id == research))
     presentations = session.scalars(r).all()
     if not len(presentations):
         return await interaction.response.send_message(
-            content="Aucun résultat n'a pu être trouvé",
+            content=lang.get("no_result", interaction.guild),
             ephemeral=True,
         )
     if len(presentations) == 1:
@@ -61,7 +68,7 @@ async def show(interaction: discord.Interaction, research: Optional[str] = None,
         return await interaction.response.send_message(embed=embed)
     embed = discord.Embed(
         colour=int('222222', 16),
-        title="Résultats de la recherche par utilisateur"
+        title=lang.get("user_result_title", interaction.guild)
     )
     for presentation in presentations:
         emoji = '🕑'
@@ -87,7 +94,7 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
     session.commit()
 
     await interaction.response.send_message(
-        content=f"{user} a bien été banni des présentations")
+        content=f"{user} " + lang.get("user_result_title", interaction.guild))
 
 
 @presentation_manage.command(description="Unban a user from submitting a presentation")
@@ -97,12 +104,12 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
     author = session.scalar(r)
     if not (author and author.presentations_banned):
         return await interaction.response.send_message(
-            content=f"{user} n'est pas banni des présentations")
+            content=f"{user} " + lang.get("presentations_not_banned", interaction.guild))
     author.presentations_banned = False
     session.commit()
 
     await interaction.response.send_message(
-        content=f"{user} a bien été débanni des présentations")
+        content=f"{user} " + lang.get("presentations_unban", interaction.guild))
 
 
 @presentation_manage.command(description="Show the banlist")
@@ -111,15 +118,15 @@ async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
     r = select(User).where(User.presentations_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 
-    banlist = ""
+    ban_list = ""
     for user in banned_users:
-        banlist += f"{user.name}\n"
+        ban_list += f"<@{user.id}>\n"
 
-    banned_embed = discord.Embed(title="Membres bannis des présentations", description=banlist)
-    banned_embed.set_footer(text=f"Page {page}")
+    banned_embed = discord.Embed(title=lang.get("presentations_list_title", interaction.guild), description=ban_list)
+    banned_embed.set_footer(text=lang.get("list_page", interaction.guild) + f" {page}")
 
     await interaction.response.send_message(embed=banned_embed,
                                             allowed_mentions=discord.AllowedMentions().none())
 
 
-partabot_client.tree.add_command(presentation_manage, guild=GUILD)
+vesta_client.tree.add_command(presentation_manage)

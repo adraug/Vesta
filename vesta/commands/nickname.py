@@ -4,13 +4,13 @@ from typing import Optional
 import discord
 from discord import app_commands
 
-from .. import partabot_client, session, GUILD
+from .. import vesta_client, session, lang
 from ..tables import User, select
 
 regex_name = r"[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}"
 
 
-@partabot_client.tree.command(description="Change your pseudonyme")
+@vesta_client.tree.command(description="Change your pseudonyme")
 @app_commands.guild_only()
 @app_commands.describe(name="Your future username")
 @app_commands.checks.bot_has_permissions(manage_nicknames=True)
@@ -19,32 +19,27 @@ async def nickname(interaction: discord.Interaction, name: str):
     author = session.scalar(r)
     if author and author.nicknames_banned:
         return await interaction.response.send_message(
-            "Vous avez été banni du système de rename",
+            lang.get("nickname_banned", interaction.guild),
             ephemeral=True)
     if not re.match(regex_name, name):
-        response_embed = discord.Embed(color=int("FF4444", 16), title="⚠️ Pseudo incorrect !",
-                                       description="Ce nom n'est pas valide," +
-                                                   f"merci d'entrer un nom validant la regex suivante : `{regex_name}`")
+        response_embed = discord.Embed(color=int("FF4444", 16), title=lang.get("nickname_incorrect_title", interaction.guild),
+                                       description=lang.get("nickname_incorrect_description", interaction.guild) + f"`{regex_name}`")
         return await interaction.response.send_message(embed=response_embed, ephemeral=True)
 
-    if isinstance(interaction.user, discord.Member):
-        await interaction.user.edit(nick=name)
-        await interaction.response.send_message(
-            content="Votre pseudo à été changé avec succès !", ephemeral=True)
-    else:
-        await interaction.response.send_message(
-            content="Merci de faire cette commande dans une guilde", ephemeral=True)
+    await interaction.user.edit(nick=name)
+    await interaction.response.send_message(
+        content=lang.get("nickname_changed", interaction.guild), ephemeral=True)
 
 
 @nickname.error
 async def nickname_error(interaction: discord.Interaction, error):
     if isinstance(error, app_commands.errors.BotMissingPermissions):
         await interaction.response.send_message(
-            "Malheureusement, le bot n'a pas les permissions suffisantes pour changer votre pseudo",
+            lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
             ephemeral=True)
     else:
         print(error)
-        await interaction.response.send_message("Une erreur s'est produite", ephemeral=True)
+        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 @app_commands.guild_only()
@@ -54,10 +49,10 @@ class NickManage(app_commands.Group, name="nickmanage", description="Nickname ma
     async def on_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
-                "You don't have the permissions to use this command", ephemeral=True)
+                lang.get("permissions_error", interaction.guild), ephemeral=True)
         else:
             print(error)
-            await interaction.response.send_message("Une erreur s'est produite", ephemeral=True)
+            await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 nick_manage = NickManage()
@@ -79,7 +74,7 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
     session.commit()
 
     await interaction.response.send_message(
-        content=f"{user} a bien été banni de la commande nickname")
+        content=f"{user} " + lang.get("nickname_ban", interaction.guild))
 
 
 @nick_manage.command(description="Unban a user from using the nickname command")
@@ -89,12 +84,12 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
     author = session.scalar(r)
     if not (author and author.nicknames_banned):
         return await interaction.response.send_message(
-            content=f"{user} n'est pas banni de la commande nickname")
+            content=f"{user} " + lang.get("nickname_not_banned", interaction.guild))
     author.nicknames_banned = False
     session.commit()
 
     await interaction.response.send_message(
-        content=f"{user} a bien été débanni de la commande nickname")
+        content=f"{user} " + lang.get("nickname_unban", interaction.guild))
 
 
 @nick_manage.command(description="Show the banlist")
@@ -103,15 +98,15 @@ async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
     r = select(User).where(User.nicknames_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 
-    banlist = ""
+    ban_list = ""
     for user in banned_users:
-        banlist += f"<@{user.id}>\n"
+        ban_list += f"<@{user.id}>\n"
 
-    banned_embed = discord.Embed(title="Membres bannis du nickname", description=banlist)
-    banned_embed.set_footer(text=f"Page {page}")
+    banned_embed = discord.Embed(title=lang.get("nickname_list_title", interaction.guild), description=ban_list)
+    banned_embed.set_footer(text=lang.get("list_page", interaction.guild) + f" {page}")
 
     await interaction.response.send_message(embed=banned_embed,
                                             allowed_mentions=discord.AllowedMentions().none())
 
 
-partabot_client.tree.add_command(nick_manage, guild=GUILD)
+vesta_client.tree.add_command(nick_manage)

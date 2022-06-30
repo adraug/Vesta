@@ -3,36 +3,45 @@ import traceback
 import discord
 from sqlalchemy import select
 
-from .. import partabot_client, REVIEW_CHANNEL, session
+from .. import vesta_client, session, lang
 from ..views import Review
-from ..tables import Presentation, User
+from ..tables import Presentation, User, Guild
 
 url_regex = r'[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 http_regex = r'https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 
 
-class PresentationForm(discord.ui.Modal, title="Présentation"):
+class PresentationForm(discord.ui.Modal, title=""):
     presentation_title = discord.ui.TextInput(
-        label="Nom du projet",
+        label="",
         max_length=255,
     )
 
     description = discord.ui.TextInput(
-        label="Description du projet",
+        label="",
         style=discord.TextStyle.long,
         min_length=100,
     )
 
     link = discord.ui.TextInput(
-        label="Lien du projet",
+        label="",
         max_length=255
     )
 
     image_url = discord.ui.TextInput(
-        label="Lien de l'image",
+        label="",
         required=False,
         max_length=511
     )
+
+    def __init__(self, interaction):
+        self.title = lang.get("presentation_form", interaction.guild)
+        self.presentation_title.label = lang.get("presentation_form_title", interaction.guild)
+        self.description.label = lang.get("presentation_form_description", interaction.guild)
+        self.link.label = lang.get("presentation_form_link", interaction.guild)
+        self.image_url.label = lang.get("presentation_form_image", interaction.guild)
+
+        super().__init__()
 
     async def on_submit(self, interaction: discord.Interaction):
         link_value = self.link.value
@@ -41,7 +50,7 @@ class PresentationForm(discord.ui.Modal, title="Présentation"):
                 link_value = 'https://' + link_value
             else:
                 return await interaction.response.send_message(
-                    content="Le lien de votre projet n'est pas valide",
+                    content=lang.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.image_url.value
@@ -50,7 +59,7 @@ class PresentationForm(discord.ui.Modal, title="Présentation"):
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content="Le lien de votre image n'est pas valide",
+                    content=lang.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
 
@@ -75,18 +84,25 @@ class PresentationForm(discord.ui.Modal, title="Présentation"):
         session.add(presentation)
         session.commit()
 
-        await interaction.response.send_message(
-            content='Votre projet sera étudié dans les plus brefs délais',
-            ephemeral=True,
-        )
+        r = select(Guild).where(Guild.id == interaction.guild_id)
+        guild = session.scalar(r)
+        if not guild or not guild.review_channel:
+            return await interaction.response.send_message(lang.get("review_channel_error", interaction.guild))
+
         embed = presentation.embed('6666ff')
-        view = Review(presentation)
-        await partabot_client.get_channel(REVIEW_CHANNEL).send(embed=embed, view=view)
+        view = Review(presentation, interaction)
+        channel = vesta_client.get_channel(guild.review_channel)
+        if not channel:
+            return await interaction.response.send_message(lang.get("review_channel_error", interaction.guild))
+        await channel.send(embed=embed, view=view)
+        await interaction.response.send_message(
+            content=lang.get("presentation_sent", interaction.guild),
+            ephemeral=True)
         await view.wait()
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         await interaction.response.send_message(
-            content="Votre demande n'as pas pu aboutir, reessayez plus tard !",
+            content=lang.get("unexpected_error", interaction.guild),
             ephemeral=True,
         )
         traceback.print_exc()

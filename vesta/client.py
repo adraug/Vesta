@@ -4,18 +4,18 @@ import random
 import discord
 from discord import app_commands
 
-from . import GUILD, session
+from . import session
 from .tables import CustomCommand, select
 
 regex_name = r"[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}"
 
-with open("vesta/names.txt") as file:
+with open("vesta/data/names.txt") as file:
     names = file.read().split(", ")
 
-with open("vesta/adjectives.txt") as file:
+with open("vesta/data/adjectives.txt") as file:
     adjectives = file.read().split(", ")
 
-class PartaBot(discord.Client):
+class Vesta(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
@@ -42,10 +42,6 @@ class PartaBot(discord.Client):
 
             if active:
                 await self.tree.sync(guild=guild)
-
-    async def setup_hook(self):
-        self.tree.copy_global_to(guild=GUILD)
-        await self.tree.sync(guild=GUILD)
 
     async def on_member_join(self, member):
         if not re.match(regex_name, member.display_name):

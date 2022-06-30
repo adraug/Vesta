@@ -4,36 +4,37 @@ from discord import app_commands
 import discord.ui
 from sqlalchemy import select
 
-from .. import session, partabot_client
+from .. import session, vesta_client, lang
 from ..tables import User, CustomCommand
 
 url_regex = r'[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 http_regex = r'https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 
-class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom"):
+
+class CustomSlashForm(discord.ui.Modal, title=""):
     command_title = discord.ui.TextInput(
-        label="Titre du message",
+        label="",
         style=discord.TextStyle.short,
         max_length=255
     )
     command_content = discord.ui.TextInput(
-        label="Contenu du message",
+        label="",
         style=discord.TextStyle.long,
     )
     command_url = discord.ui.TextInput(
-        label="Lien",
+        label="",
         style=discord.TextStyle.short,
         required=False,
         max_length=511
     )
     command_image = discord.ui.TextInput(
-        label="Image",
+        label="",
         style=discord.TextStyle.short,
         required=False,
         max_length=511
     )
     command_colour = discord.ui.TextInput(
-        label="Couleur de l'embed",
+        label="",
         style=discord.TextStyle.short,
         placeholder="fdfd58",
         required=False,
@@ -41,10 +42,16 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
         min_length=6
     )
 
-    def __init__(self, keyword):
+    def __init__(self, keyword, interaction):
+        self.title = lang.get("custom_form", interaction.guild)
+        self.command_title.label = lang.get("custom_form_title", interaction.guild)
+        self.command_content.label = lang.get("custom_form_content", interaction.guild)
+        self.command_url.label = lang.get("custom_form_link", interaction.guild)
+        self.command_image.label = lang.get("custom_form_image", interaction.guild)
+        self.command_colour.label = lang.get("custom_form_color", interaction.guild)
+
         super().__init__()
         self.keyword = keyword
-
 
     async def on_submit(self, interaction: discord.Interaction):
         command_url = self.command_url.value
@@ -53,7 +60,7 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
                 command_url = 'https://' + command_url
             else:
                 return await interaction.response.send_message(
-                    content="Le lien n'est pas valide",
+                    content=lang.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.command_image.value
@@ -62,7 +69,7 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content="Le lien de votre image n'est pas valide",
+                    content=lang.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
         r = select(User).where(User.id == interaction.user.id)
@@ -74,10 +81,7 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
                 avatar_url=interaction.user.display_avatar.url
             )
             session.add(author)
-        r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
-        r = r.where(CustomCommand.keyword == self.keyword)
-        if session.scalar(r):
-            return await interaction.response.send_message("La commande existe déjà", ephemeral=True)
+
         custom_command = CustomCommand(
             guild_id=interaction.guild_id,
             keyword=self.keyword,
@@ -90,7 +94,7 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
         )
         session.add(custom_command)
         session.commit()
-        await interaction.response.send_message("La commande à bien été créée !", ephemeral=True)
+        await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
         async def command(interaction: discord.Interaction):
@@ -98,33 +102,34 @@ class CustomSlashForm(discord.ui.Modal, title="Création d'une commande custom")
 
         custom = app_commands.Command(name=self.keyword, description=self.command_title.value, callback=command)
 
-        partabot_client.tree.add_command(custom, guild=interaction.guild)
-        await partabot_client.tree.sync(guild=interaction.guild)
+        vesta_client.tree.add_command(custom, guild=interaction.guild)
+        await vesta_client.tree.sync(guild=interaction.guild)
 
-class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
+
+class CustomMenuForm(discord.ui.Modal, title=""):
     command_keyword = discord.ui.TextInput(
-        label="Keyword de la commande",
+        label="",
         max_length=32
     )
     command_title = discord.ui.TextInput(
-        label="Titre du message",
+        label="",
         style=discord.TextStyle.short,
         max_length=255
     )
     command_url = discord.ui.TextInput(
-        label="Lien",
+        label="",
         style=discord.TextStyle.short,
         required=False,
         max_length=511
     )
     command_image = discord.ui.TextInput(
-        label="Image",
+        label="",
         style=discord.TextStyle.short,
         required=False,
         max_length=511
     )
     command_colour = discord.ui.TextInput(
-        label="Couleur de l'embed",
+        label="",
         style=discord.TextStyle.short,
         placeholder="fdfd58",
         required=False,
@@ -132,11 +137,17 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
         min_length=6
     )
 
-    def __init__(self, content, author):
+    def __init__(self, content, author, interaction):
+        self.title = lang.get("custom_form", interaction.guild)
+        self.command_keyword.label = lang.get("custom_form_keyword", interaction.guild)
+        self.command_title.label = lang.get("custom_form_title", interaction.guild)
+        self.command_url.label = lang.get("custom_form_link", interaction.guild)
+        self.command_image.label = lang.get("custom_form_image", interaction.guild)
+        self.command_colour.label = lang.get("custom_form_color", interaction.guild)
+
         super().__init__()
         self.content = content
         self.author = author
-
 
     async def on_submit(self, interaction: discord.Interaction):
         command_url = self.command_url.value
@@ -145,7 +156,7 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
                 command_url = 'https://' + command_url
             else:
                 return await interaction.response.send_message(
-                    content="Le lien n'est pas valide",
+                    content=lang.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.command_image.value
@@ -154,7 +165,7 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content="Le lien de votre image n'est pas valide",
+                    content=lang.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
         r = select(User).where(User.id == self.author.id)
@@ -169,7 +180,7 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
         r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
         r = r.where(CustomCommand.keyword == self.command_keyword.value)
         if session.scalar(r):
-            return await interaction.response.send_message("La commande existe déjà", ephemeral=True)
+            return await interaction.response.send_message(lang.get("command_already_exist", interaction.guild), ephemeral=True)
         custom_command = CustomCommand(
             guild_id=interaction.guild_id,
             keyword=self.command_keyword.value,
@@ -182,7 +193,7 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
         )
         session.add(custom_command)
         session.commit()
-        await interaction.response.send_message("La commande à bien été créée !", ephemeral=True)
+        await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
         async def command(interaction: discord.Interaction):
@@ -190,5 +201,5 @@ class CustomMenuForm(discord.ui.Modal, title="Création d'une commande custom"):
 
         custom = app_commands.Command(name=self.command_keyword.value, description=self.command_title.value, callback=command)
 
-        partabot_client.tree.add_command(custom, guild=interaction.guild)
-        await partabot_client.tree.sync(guild=interaction.guild)
+        vesta_client.tree.add_command(custom, guild=interaction.guild)
+        await vesta_client.tree.sync(guild=interaction.guild)
