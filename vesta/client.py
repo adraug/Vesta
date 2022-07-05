@@ -1,5 +1,6 @@
 import re
 import random
+import logging
 
 import discord
 from discord import app_commands
@@ -7,7 +8,9 @@ from discord import app_commands
 from . import session
 from .tables import CustomCommand, select
 
-regex_name = r"[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}"
+logger = logging.getLogger(__name__)
+
+regex_name = r"^[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}$"
 
 with open("vesta/data/names.txt") as file:
     names = file.read().split(", ")
@@ -22,21 +25,27 @@ class Vesta(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def on_ready(self):
-        print('Logged on as {0}!'.format(self.user))
+        logger.info(f"Logged on as {self.user}")
+
+        for com in self.tree.get_commands():
+            logger.debug(f"Globals {com} name : {com.name}")
+
+        await self.tree.sync()
         for guild in self.guilds:
+            for com in self.tree.get_commands(guild=guild):
+                logger.debug(f"Globals {com} name : {com.name} description : {com.description} end")
             active = False
 
             r = select(CustomCommand).where(CustomCommand.guild_id == guild.id)
             for custom_command in session.scalars(r):
                 active = True
-                print(custom_command)
 
                 def create_command(custom_command):
                     @app_commands.guild_only()
                     async def command(interaction: discord.Interaction):
                         await interaction.response.send_message(embed=custom_command.embed())
 
-                    return app_commands.Command(name=custom_command.keyword, description=custom_command.content,
+                    return app_commands.Command(name=custom_command.keyword.lower(), description=custom_command.content,
                                                 callback=command)
 
                 self.tree.add_command(create_command(custom_command), guild=guild)
@@ -45,9 +54,22 @@ class Vesta(discord.Client):
                 await self.tree.sync(guild=guild)
 
     async def on_member_join(self, member):
+        logger.debug(f"Member joined : {member}!")
         if not re.match(regex_name, member.display_name):
             await member.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 
     async def on_member_update(self, before, after):
+        logger.debug(f"Member update : {after}!")
         if not after.guild_permissions.manage_nicknames and not re.match(regex_name, after.display_name):
             await after.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
+
+    async def setup_hook(self):
+        interaction = type('', (), {})()
+        guild = type('', (), {})()
+        guild.id = 0
+        guild.preferred_locale = "en"
+        interaction.guild = guild
+
+        from .views import Review
+
+        self.add_view(Review(interaction))

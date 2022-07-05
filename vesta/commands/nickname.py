@@ -1,5 +1,7 @@
 import re
 from typing import Optional
+import logging
+import traceback
 
 import discord
 from discord import app_commands
@@ -7,7 +9,9 @@ from discord import app_commands
 from .. import vesta_client, session, lang
 from ..tables import User, select
 
-regex_name = r"[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}"
+logger = logging.getLogger(__name__)
+
+regex_name = r"^[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}$"
 
 
 @vesta_client.tree.command(description="Change your pseudonyme")
@@ -15,6 +19,7 @@ regex_name = r"[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#
 @app_commands.describe(name="Your future username")
 @app_commands.checks.bot_has_permissions(manage_nicknames=True)
 async def nickname(interaction: discord.Interaction, name: str):
+    logger.debug(f"Command /nickname {name} used")
     r = select(User).where(User.id == interaction.user.id)
     author = session.scalar(r)
     if author and author.nicknames_banned:
@@ -34,12 +39,13 @@ async def nickname(interaction: discord.Interaction, name: str):
 
 @nickname.error
 async def nickname_error(interaction: discord.Interaction, error):
+    logger.debug(f"Error {error} raised")
     if isinstance(error, app_commands.errors.BotMissingPermissions):
         await interaction.response.send_message(
             lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
             ephemeral=True)
     else:
-        print(error)
+        logger.error(traceback.format_exc())
         await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
@@ -48,11 +54,16 @@ async def nickname_error(interaction: discord.Interaction, error):
 class NickManage(app_commands.Group, name="nickmanage", description="Nickname manager"):
 
     async def on_error(self, interaction: discord.Interaction, error):
+        logger.debug(f"Error {error} raised")
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
                 lang.get("permissions_error", interaction.guild), ephemeral=True)
+        elif isinstance(error, app_commands.errors.BotMissingPermissions):
+            await interaction.response.send_message(
+                lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
+                ephemeral=True)
         else:
-            print(error)
+            logger.error(traceback.format_exc())
             await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
@@ -62,6 +73,8 @@ nick_manage = NickManage()
 @nick_manage.command(description="Ban a user from using the nickname command")
 @app_commands.describe(user="The user to ban")
 async def ban(interaction: discord.Interaction, user: discord.Member):
+    logger.debug(f"Command /nickmanage ban {user} used")
+
     r = select(User).where(User.id == user.id)
     author = session.scalar(r)
     if not author:
@@ -81,6 +94,8 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 @nick_manage.command(description="Unban a user from using the nickname command")
 @app_commands.describe(user="The user to unban")
 async def unban(interaction: discord.Interaction, user: discord.Member):
+    logger.debug(f"Command /nickmanage unban {user} used")
+
     r = select(User).where(User.id == user.id)
     author = session.scalar(r)
     if not (author and author.nicknames_banned):
@@ -96,6 +111,8 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
 @nick_manage.command(description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
+    logger.debug(f"Command /nickmanage list used")
+
     r = select(User).where(User.nicknames_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 

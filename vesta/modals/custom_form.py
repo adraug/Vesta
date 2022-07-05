@@ -1,4 +1,5 @@
 import re
+import logging
 
 from discord import app_commands
 import discord.ui
@@ -7,15 +8,18 @@ from sqlalchemy import select
 from .. import session, vesta_client, lang
 from ..tables import User, CustomCommand
 
-url_regex = r'[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
-http_regex = r'https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+logger = logging.getLogger(__name__)
+
+url_regex = r'^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+http_regex = r'^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+custom_regex = "^[a-z0-9_-]{1,32}$"
 
 
 class CustomSlashForm(discord.ui.Modal, title=""):
     command_title = discord.ui.TextInput(
         label="",
         style=discord.TextStyle.short,
-        max_length=255
+        max_length=100
     )
     command_content = discord.ui.TextInput(
         label="",
@@ -43,6 +47,8 @@ class CustomSlashForm(discord.ui.Modal, title=""):
     )
 
     def __init__(self, keyword, interaction):
+        logger.debug(f"CustomSlashForm created for {interaction.user}")
+
         self.title = lang.get("custom_form", interaction.guild)
         self.command_title.label = lang.get("custom_form_title", interaction.guild)
         self.command_content.label = lang.get("custom_form_content", interaction.guild)
@@ -54,6 +60,13 @@ class CustomSlashForm(discord.ui.Modal, title=""):
         self.keyword = keyword
 
     async def on_submit(self, interaction: discord.Interaction):
+        logger.debug(f"CustomSlashForm submitted for {interaction.user}")
+
+        command_title = self.command_title.label.strip()
+        command_content = self.command_content.label.strip()
+        if not command_title or command_content:
+            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
+
         command_url = self.command_url.value
         if command_url and not re.match(http_regex, command_url):
             if re.match(url_regex, command_url):
@@ -85,8 +98,8 @@ class CustomSlashForm(discord.ui.Modal, title=""):
         custom_command = CustomCommand(
             guild_id=interaction.guild_id,
             keyword=self.keyword,
-            title=self.command_title.value,
-            content=self.command_content.value,
+            title=command_title,
+            content=command_content,
             source_url=command_url,
             image_url=image_url,
             colour=int(self.command_colour.value, 16) if self.command_colour.value else None,
@@ -100,7 +113,9 @@ class CustomSlashForm(discord.ui.Modal, title=""):
         async def command(interaction: discord.Interaction):
             await interaction.response.send_message(embed=custom_command.embed())
 
-        custom = app_commands.Command(name=self.keyword, description=self.command_title.value, callback=command)
+        custom = app_commands.Command(name=self.keyword, description=command_title, callback=command)
+
+        logger.info(f"New Custom Guild {interaction.guild.name} : {custom} name : {custom.name} description : {custom.description} end")
 
         vesta_client.tree.add_command(custom, guild=interaction.guild)
         await vesta_client.tree.sync(guild=interaction.guild)
@@ -114,7 +129,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
     command_title = discord.ui.TextInput(
         label="",
         style=discord.TextStyle.short,
-        max_length=255
+        max_length=100
     )
     command_url = discord.ui.TextInput(
         label="",
@@ -138,6 +153,8 @@ class CustomMenuForm(discord.ui.Modal, title=""):
     )
 
     def __init__(self, content, author, interaction):
+        logger.debug(f"CustomMenuForm created for {interaction.user}")
+
         self.title = lang.get("custom_form", interaction.guild)
         self.command_keyword.label = lang.get("custom_form_keyword", interaction.guild)
         self.command_title.label = lang.get("custom_form_title", interaction.guild)
@@ -150,6 +167,16 @@ class CustomMenuForm(discord.ui.Modal, title=""):
         self.author = author
 
     async def on_submit(self, interaction: discord.Interaction):
+        logger.debug(f"CustomMenuForm submitted for {interaction.user}")
+
+        keyword = self.command_keyword.value.lower()
+        if not re.match(custom_regex, keyword):
+            return await interaction.response.send_message(lang.get("invalid_keyword", interaction.guild), ephemeral=True)
+
+        command_title = self.command_title.label.strip()
+        if not command_title:
+            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
+
         command_url = self.command_url.value
         if command_url and not re.match(http_regex, command_url):
             if re.match(url_regex, command_url):
@@ -178,13 +205,13 @@ class CustomMenuForm(discord.ui.Modal, title=""):
             )
             session.add(author)
         r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
-        r = r.where(CustomCommand.keyword == self.command_keyword.value)
+        r = r.where(CustomCommand.keyword == keyword)
         if session.scalar(r):
             return await interaction.response.send_message(lang.get("command_already_exist", interaction.guild), ephemeral=True)
         custom_command = CustomCommand(
             guild_id=interaction.guild_id,
-            keyword=self.command_keyword.value,
-            title=self.command_title.value,
+            keyword=keyword,
+            title=command_title,
             content=self.content,
             source_url=command_url,
             image_url=image_url,
@@ -199,7 +226,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
         async def command(interaction: discord.Interaction):
             await interaction.response.send_message(embed=custom_command.embed())
 
-        custom = app_commands.Command(name=self.command_keyword.value, description=self.command_title.value, callback=command)
+        custom = app_commands.Command(name=keyword, description=command_title, callback=command)
 
         vesta_client.tree.add_command(custom, guild=interaction.guild)
         await vesta_client.tree.sync(guild=interaction.guild)

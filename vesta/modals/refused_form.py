@@ -1,6 +1,9 @@
 import discord
+import logging
 
 from .. import vesta_client, lang
+
+logger = logging.getLogger(__name__)
 
 
 class RefusedReasonForm(discord.ui.Modal, title=""):
@@ -10,12 +13,16 @@ class RefusedReasonForm(discord.ui.Modal, title=""):
     )
 
     def __init__(self, presentation, interaction):
+        logger.debug(f"RefusedReasonForm created for {interaction.user}")
+
         self.title = lang.get("denied_form", interaction.guild)
         self.reason.label = lang.get("denied_form_reason", interaction.guild)
         super().__init__()
         self.presentation = presentation
 
     async def on_submit(self, interaction: discord.Interaction):
+        logger.debug(f"RefusedReasonForm submitted for {interaction.user}")
+
         presentation_embed = self.presentation.embed('222222')
         reason_embed = discord.Embed(
             colour=int('ff2222', 16),

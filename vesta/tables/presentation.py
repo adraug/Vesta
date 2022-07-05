@@ -10,8 +10,9 @@ class Presentation(Base):
     __tablename__ = "presentation"
 
     id = db.Column(db.BigInteger, primary_key=True)
+    message_id = db.Column(db.BigInteger)
     creation_date = db.Column(db.DateTime, default=datetime.now, nullable=False)
-    title = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(230), nullable=False)
     description = db.Column(db.Text, nullable=False)
     url = db.Column(db.String(255), nullable=False)
     image_url = db.Column(db.String(511))

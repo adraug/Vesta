@@ -2,6 +2,8 @@ import os
 import discord
 from sqlalchemy.orm import Session
 
+import logging
+
 TOKEN = os.getenv('TOKEN')
 POSTGRES = os.getenv('POSTGRES')
 

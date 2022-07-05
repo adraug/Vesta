@@ -10,7 +10,7 @@ class CustomCommand(Base):
 
     guild_id = db.Column(db.BigInteger, nullable=False)
     keyword = db.Column(db.String(32), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     source_url = db.Column(db.String(511))
     image_url = db.Column(db.String(511))

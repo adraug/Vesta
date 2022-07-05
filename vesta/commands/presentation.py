@@ -1,5 +1,7 @@
 import discord
 from discord import app_commands
+import logging
+import traceback
 
 from typing import Optional
 
@@ -7,9 +9,12 @@ from .. import vesta_client, session, lang
 from ..modals import PresentationForm
 from ..tables import Presentation, select, or_, User, Guild
 
+logger = logging.getLogger(__name__)
+
 
 @vesta_client.tree.command(description="Submit a presentation")
 async def presentation(interaction: discord.Interaction):
+    logger.debug(f"Command /presentation used")
 
     r = select(Guild).where(Guild.id == interaction.guild_id)
     guild = session.scalar(r)
@@ -31,11 +36,16 @@ async def presentation(interaction: discord.Interaction):
 class PresentationManage(app_commands.Group, name="presentationmanage", description="Nickname manager"):
 
     async def on_error(self, interaction: discord.Interaction, error):
+        logger.debug(f"Error {error} raised")
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
                 lang.get("permissions_error", interaction.guild), ephemeral=True)
+        elif isinstance(error, app_commands.errors.BotMissingPermissions):
+            await interaction.response.send_message(
+                lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
+                ephemeral=True)
         else:
-            print(error)
+            logger.error(traceback.format_exc())
             await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
@@ -45,6 +55,7 @@ presentation_manage = PresentationManage()
 @presentation_manage.command(description="Show a presentation")
 @app_commands.describe(research="Presentation's Id or Author's Id")
 async def show(interaction: discord.Interaction, research: Optional[str] = None, user: Optional[discord.Member] = None):
+    logger.debug(f"Command /presentationmanage show [research={research},user={user}] used")
     if not (research or user):
         return await interaction.response.send_message(
             lang.get("minimum_one_parameter", interaction.guild), ephemeral=True)
@@ -81,6 +92,8 @@ async def show(interaction: discord.Interaction, research: Optional[str] = None,
 @presentation_manage.command(description="Ban a user from submitting a presentation")
 @app_commands.describe(user="The user to ban")
 async def ban(interaction: discord.Interaction, user: discord.Member):
+    logger.debug(f"Command /presentationmanage ban {user} used")
+
     r = select(User).where(User.id == user.id)
     author = session.scalar(r)
     if not author:
@@ -100,6 +113,8 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 @presentation_manage.command(description="Unban a user from submitting a presentation")
 @app_commands.describe(user="The user to unban")
 async def unban(interaction: discord.Interaction, user: discord.Member):
+    logger.debug(f"Command /presentationmanage unban {user} used")
+
     r = select(User).where(User.id == user.id)
     author = session.scalar(r)
     if not (author and author.presentations_banned):
@@ -115,6 +130,8 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
 @presentation_manage.command(description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
+    logger.debug(f"Command /presentationmanage list used")
+
     r = select(User).where(User.presentations_banned == True).offset(100 * page).limit(100)
     banned_users = session.scalars(r)
 

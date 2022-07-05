@@ -1,5 +1,8 @@
+import logging
+
 from .tables import select, Guild
 
+logger = logging.getLogger(__name__)
 
 class Lang:
 
@@ -18,4 +21,5 @@ class Lang:
         if item in self.data[lang]:
             return self.data[lang][item]
 
-        raise AttributeError(f"Element {item} not found")
+        logger.error(f"Element {item} not found : guild {guild}, lang {lang}")
+        return "Could not load"

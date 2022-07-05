@@ -56,14 +56,17 @@ fr:
   reason_not_open_source: Projet non open-source
   reason_illegal: Projet Illégal
   reason_other: Autre
-  denied: Refuser
+  deny: Refuser
   denied_by: Refusé par
   projects_channel_error: Il semblerais y avoir un problème avec le salon de projets
-  accepted: Accepter
+  accept: Accepter
   accepted_by: Accepté par
   text_not_enough_code: "Nous préférons mettre en avant des projets matures et aboutis, avec une quantité de code suffisante. Votre projet n'est ainsi pas assez gros à notre goût. Certes, cela est très bien de faire des projets, c'est une bonne façon d'apprendre la programmation, mais il faudrait peut-être l'épaissir un peu, ou attendre un plus gros projet, avant de le partager comme ça ^^."
   text_not_open_source: "Le but du salon est de promouvoir l'open source, pas de faire de la publicité. Ainsi, nous préférons refuser les projets qui ne donnent pas un lien vers un github, gitlab, ou tout autre site destiné au partage de code."
   text_illegal: "Votre projet est non conformes aux règles de ce discord ou aux TOS de discord. Par conséquent, nous ne pouvons pas vous laisser poster ce projet dans le salon."
+  too_long_keyword: Le mot-clé entré est trop long
+  invalid_keyword: Le mot clé est invalide
+  custom_invalid_args: Merci de fournir des arguments valides
 en:
   invalid_link: The link is not valid
   invalid_image_link: The link of the image is not valid
@@ -130,3 +133,6 @@ en:
   text_not_enough_code: "We prefer to share mature and complete projects, with a certain amount of code. Your project is not big enough to our liking. Yes, making projects is a very good way to learn about programming, but you could maybe elaborate a bit more, or wait util you do a bigger project before sharing it."
   text_not_open_source: "The goal of the channel is to promote open source, not make advertisement. Therefore we must reject projects that do not contain link to any github, gitlab, or other code sharing website."
   text_illegal: "Your project does not follow our rules or Discord TOS. Therefore, we cannot post your project in the channel"
+  too_long_keyword: This keyword is too long
+  invalid_keyword: This keyword is not valid
+  custom_invalid_args: Please provide good arguments

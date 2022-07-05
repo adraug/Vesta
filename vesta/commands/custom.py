@@ -1,20 +1,31 @@
 import discord
 from discord import app_commands
+import logging
+import traceback
+import re
 
 from .. import vesta_client, session, lang
 from ..modals import CustomSlashForm, CustomMenuForm
 from ..tables import CustomCommand, select
 
+logger = logging.getLogger(__name__)
+
+custom_regex = "^[a-z0-9_-]{1,32}$"
 
 @app_commands.guild_only()
 @app_commands.default_permissions(ban_members=True)
 class CustomManager(app_commands.Group, name="custom", description="Custom commands manager"):
     async def on_error(self, interaction: discord.Interaction, error):
+        logger.debug(f"Error {error} raised")
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
                 lang.get("permissions_error", interaction.guild), ephemeral=True)
+        elif isinstance(error, app_commands.errors.BotMissingPermissions):
+            await interaction.response.send_message(
+                lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
+                ephemeral=True)
         else:
-            print(error)
+            logger.error(traceback.format_exc())
             await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
@@ -24,6 +35,14 @@ custom_manager = CustomManager()
 @custom_manager.command(description="Create custom command")
 @app_commands.describe(keyword="The keyword of the command")
 async def add(interaction: discord.Interaction, keyword: str):
+    keyword = keyword.lower()
+    if not re.match(custom_regex, keyword):
+        return await interaction.response.send_message(lang.get("invalid_keyword", interaction.guild), ephemeral=True)
+    logger.debug(f"Command /custom add {keyword} used")
+
+    if len(keyword) > 32:
+        return await interaction.response.send_message(lang.get("too_long_keyword", interaction.guild), ephemeral=True)
+
     r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
     r = r.where(CustomCommand.keyword == keyword)
 
@@ -41,6 +60,9 @@ async def add(interaction: discord.Interaction, keyword: str):
 @custom_manager.command(description="Remove custom command")
 @app_commands.describe(keyword="The keyword of the command")
 async def remove(interaction: discord.Interaction, keyword: str):
+    keyword = keyword.lower()
+
+    logger.debug(f"Command /custom remove {keyword} used")
     r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
     r = r.where(CustomCommand.keyword == keyword)
 
@@ -52,11 +74,12 @@ async def remove(interaction: discord.Interaction, keyword: str):
     session.delete(command)
     session.commit()
     await interaction.response.send_message(lang.get("command_deleted", interaction.guild), ephemeral=True)
+    await vesta_client.tree.sync(guild=interaction.guild)
 
 
-@custom_manager.command(description="List custom commands")
-async def list(interaction: discord.Interaction):
-
+@custom_manager.command(name="list", description="List custom commands")
+async def custom_list(interaction: discord.Interaction):
+    logger.debug(f"Command /custom list used")
     list_embed = discord.Embed(title=lang.get("list_commands", interaction.guild))
     list_embed2 = discord.Embed(title=lang.get("list_commands2", interaction.guild))
 
@@ -82,6 +105,7 @@ async def list(interaction: discord.Interaction):
 @app_commands.guild_only()
 @vesta_client.tree.context_menu(name="Create Custom Command")
 async def create_custom(interaction: discord.Interaction, message: discord.Message):
+    logger.debug(f"Menu Create Custom Command used")
 
     number = session.query(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id).count()
     if number > 39:
