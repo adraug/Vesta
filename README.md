@@ -50,7 +50,13 @@ $ python -m vesta --token "Your token" --postgres "Postgresql database url"
 Si vous souhaitez passer par l'image docker, vous pouvez lancer le bot avec
 
 ```bash
-$ docker run -e TOKEN=<your_token> -e POSTGRES_USER=<your_postgres_user> -e POSTGRES_PASSWORD=<your_postgres_password> -e POSTGRES_DATABASE=<your_postgres_database> -e LOGGING_LEVEL=<logging_level> vesta:latest
+$ docker run -d \
+  -e TOKEN=<your_token> \
+  -e POSTGRES_USER=<your_postgres_user> \
+  -e POSTGRES_PASSWORD=<your_postgres_password> \
+  -e POSTGRES_DATABASE=<your_postgres_database> \
+  -e LOGGING_LEVEL=<logging_level> \
+  vesta:latest
 ```
 
 ou avec docker-compose
