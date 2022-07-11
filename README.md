@@ -55,7 +55,7 @@ $ docker run -d \
   -e POSTGRES_USER=<your_postgres_user> \
   -e POSTGRES_PASSWORD=<your_postgres_password> \
   -e POSTGRES_DATABASE=<your_postgres_database> \
-  -e LOGGING_LEVEL=<logging_level> \
+  -e LOGGING_LEVEL=<logging_level> 
   vesta:latest
 ```
 
