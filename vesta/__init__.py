@@ -1,19 +1,13 @@
-import os
 import discord
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
-import logging
 
-TOKEN = os.getenv('TOKEN')
-POSTGRES = os.getenv('POSTGRES')
-
-from .tables import engine
-session = Session(engine)
+session_maker = sessionmaker()
 
 from .lang import Lang
 from yaml import load, Loader
 with open("vesta/data/lang.yml") as file:
-    lang = Lang(load(file.read(), Loader), session)
+    lang = Lang(load(file.read(), Loader), session_maker)
 
 from .client import Vesta
 

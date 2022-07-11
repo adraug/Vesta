@@ -5,7 +5,7 @@ import logging
 import discord
 from discord import app_commands
 
-from . import session
+from . import session_maker
 from .tables import CustomCommand, select
 
 logger = logging.getLogger(__name__)
@@ -32,12 +32,12 @@ class Vesta(discord.Client):
 
         await self.tree.sync()
         for guild in self.guilds:
-            for com in self.tree.get_commands(guild=guild):
-                logger.debug(f"Globals {com} name : {com.name} description : {com.description} end")
             active = False
 
             r = select(CustomCommand).where(CustomCommand.guild_id == guild.id)
-            for custom_command in session.scalars(r):
+            with session_maker() as session:
+                responses = session.scalars(r)
+            for custom_command in responses:
                 active = True
 
                 def create_command(custom_command):
@@ -45,10 +45,13 @@ class Vesta(discord.Client):
                     async def command(interaction: discord.Interaction):
                         await interaction.response.send_message(embed=custom_command.embed())
 
-                    return app_commands.Command(name=custom_command.keyword.lower(), description=custom_command.content,
+                    return app_commands.Command(name=custom_command.keyword.lower(), description=custom_command.title,
                                                 callback=command)
 
                 self.tree.add_command(create_command(custom_command), guild=guild)
+
+            for com in self.tree.get_commands(guild=guild):
+                logger.debug(f"Custom {com} name : {com.name} description : {com.description} end")
 
             if active:
                 await self.tree.sync(guild=guild)

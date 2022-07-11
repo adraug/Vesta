@@ -12,12 +12,18 @@ class Lang:
 
     def get(self, item, guild):
         lang = "en"
-        r = select(Guild).where(Guild.id == guild.id)
-        search_guild = self.session.scalar(r)
-        if search_guild:
-            lang = search_guild.lang
+
         if guild.preferred_locale[:2] in self.data:
             lang = guild.preferred_locale[:2]
+
+        r = select(Guild).where(Guild.id == guild.id)
+
+        with self.session() as session:
+            search_guild = session.scalar(r)
+
+        if search_guild and search_guild.lang:
+            lang = search_guild.lang
+
         if item in self.data[lang]:
             return self.data[lang][item]
 

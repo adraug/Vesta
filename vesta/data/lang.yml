@@ -67,6 +67,8 @@ fr:
   too_long_keyword: Le mot-clé entré est trop long
   invalid_keyword: Le mot clé est invalide
   custom_invalid_args: Merci de fournir des arguments valides
+  thread_project: Discussion sur le projet
+  nick_too_long: Ce nom est trop long
 en:
   invalid_link: The link is not valid
   invalid_image_link: The link of the image is not valid
@@ -136,3 +138,5 @@ en:
   too_long_keyword: This keyword is too long
   invalid_keyword: This keyword is not valid
   custom_invalid_args: Please provide good arguments
+  thread_project: Talking about the project
+  nick_too_long: This nick is too long

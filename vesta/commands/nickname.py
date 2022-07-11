@@ -6,10 +6,11 @@ import traceback
 import discord
 from discord import app_commands
 
-from .. import vesta_client, session, lang
-from ..tables import User, select
+from .. import vesta_client, session_maker, lang
+from ..tables import select, Ban
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 regex_name = r"^[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|#]{0,29}$"
 
@@ -20,9 +21,10 @@ regex_name = r"^[A-Za-z0-9À-ÿ ]{3}[A-Za-z0-9À-ÿ\/.+=()\[\]{}&%*!:;,?§<>_ -|
 @app_commands.checks.bot_has_permissions(manage_nicknames=True)
 async def nickname(interaction: discord.Interaction, name: str):
     logger.debug(f"Command /nickname {name} used")
-    r = select(User).where(User.id == interaction.user.id)
-    author = session.scalar(r)
-    if author and author.nicknames_banned:
+
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if response and response.nickname_banned:
         return await interaction.response.send_message(
             lang.get("nickname_banned", interaction.guild),
             ephemeral=True)
@@ -31,6 +33,9 @@ async def nickname(interaction: discord.Interaction, name: str):
         response_embed = discord.Embed(color=int("FF4444", 16), title=lang.get("nickname_incorrect_title", interaction.guild),
                                        description=lang.get("nickname_incorrect_description", interaction.guild) + f"`{regex_name}`")
         return await interaction.response.send_message(embed=response_embed, ephemeral=True)
+
+    if len(name) > 32:
+        return await interaction.response.send_message(lang.get("nick_too_long", interaction.guild), ephemeral=True)
 
     await interaction.user.edit(nick=name)
     await interaction.response.send_message(
@@ -75,16 +80,15 @@ nick_manage = NickManage()
 async def ban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /nickmanage ban {user} used")
 
-    r = select(User).where(User.id == user.id)
-    author = session.scalar(r)
-    if not author:
-        author = User(
-            id=user.id,
-            name=user.display_name,
-            avatar_url=user.display_avatar.url
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if not response:
+        response = Ban(
+            user_id=user.id,
+            guild_id=interaction.guild.id
         )
-        session.add(author)
-    author.nicknames_banned = True
+        session.add(response)
+    response.nickname_banned = True
     session.commit()
 
     await interaction.response.send_message(
@@ -96,29 +100,30 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 async def unban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /nickmanage unban {user} used")
 
-    r = select(User).where(User.id == user.id)
-    author = session.scalar(r)
-    if not (author and author.nicknames_banned):
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if not (response and response.nickname_banned):
         return await interaction.response.send_message(
             content=f"{user} " + lang.get("nickname_not_banned", interaction.guild))
-    author.nicknames_banned = False
+    response.nickname_banned = False
     session.commit()
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("nickname_unban", interaction.guild))
 
 
-@nick_manage.command(description="Show the banlist")
+@nick_manage.command(name="list", description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
     logger.debug(f"Command /nickmanage list used")
 
-    r = select(User).where(User.nicknames_banned == True).offset(100 * page).limit(100)
-    banned_users = session.scalars(r)
+    r = select(Ban).where(Ban.guild_id == interaction.guild.id)
+    r = r.where(Ban.nickname_banned == True).offset(50 * page).limit(50)
+    responses = session.scalars(r)
 
     ban_list = ""
-    for user in banned_users:
-        ban_list += f"<@{user.id}>\n"
+    for response in responses:
+        ban_list += f"<@{response.user_id}>\n"
 
     banned_embed = discord.Embed(title=lang.get("nickname_list_title", interaction.guild), description=ban_list)
     banned_embed.set_footer(text=lang.get("list_page", interaction.guild) + f" {page}")

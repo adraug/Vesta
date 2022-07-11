@@ -5,10 +5,11 @@ from discord import app_commands
 import discord.ui
 from sqlalchemy import select
 
-from .. import session, vesta_client, lang
+from .. import session_maker, vesta_client, lang
 from ..tables import User, CustomCommand
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 url_regex = r'^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
 http_regex = r'^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
@@ -62,9 +63,9 @@ class CustomSlashForm(discord.ui.Modal, title=""):
     async def on_submit(self, interaction: discord.Interaction):
         logger.debug(f"CustomSlashForm submitted for {interaction.user}")
 
-        command_title = self.command_title.label.strip()
-        command_content = self.command_content.label.strip()
-        if not command_title or command_content:
+        command_title = self.command_title.value.strip()
+        command_content = self.command_content.value.strip()
+        if not command_title or not command_content:
             return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
         command_url = self.command_url.value

@@ -2,11 +2,12 @@ from datetime import datetime
 import discord
 import logging
 
-from .. import session, vesta_client, lang
+from .. import session_maker, vesta_client, lang
 from ..modals import RefusedReasonForm
 from ..tables import select, Guild, Presentation
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 
 class DropdownReview(discord.ui.Select):
@@ -85,7 +86,10 @@ class AcceptReview(discord.ui.Button):
         embed.timestamp = presentation.review_date
         await interaction.response.edit_message(embed=embed, view=None)
         embed.title = " ".join(embed.title.split()[1:])
-        await channel.send(embed=embed)
+
+        message = await channel.send(embed=embed)
+        await message.create_thread(name=lang.get("thread_project", interaction.guild) + " [" + embed.title + "]")
+
         self.view.stop()
 
 

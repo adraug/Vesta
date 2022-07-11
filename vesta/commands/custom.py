@@ -4,13 +4,15 @@ import logging
 import traceback
 import re
 
-from .. import vesta_client, session, lang
+from .. import vesta_client, session_maker, lang
 from ..modals import CustomSlashForm, CustomMenuForm
 from ..tables import CustomCommand, select
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 custom_regex = "^[a-z0-9_-]{1,32}$"
+
 
 @app_commands.guild_only()
 @app_commands.default_permissions(ban_members=True)

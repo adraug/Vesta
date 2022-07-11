@@ -5,13 +5,15 @@ import traceback
 
 from typing import Optional
 
-from .. import vesta_client, session, lang
+from .. import vesta_client, session_maker, lang
 from ..modals import PresentationForm
-from ..tables import Presentation, select, or_, User, Guild
+from ..tables import Presentation, select, or_, Guild, Ban
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 
+@app_commands.guild_only()
 @vesta_client.tree.command(description="Submit a presentation")
 async def presentation(interaction: discord.Interaction):
     logger.debug(f"Command /presentation used")
@@ -22,9 +24,9 @@ async def presentation(interaction: discord.Interaction):
         return await interaction.response.send_message(
             lang.get("presentations_not_available", interaction.guild), ephemeral=True)
 
-    r = select(User).where(User.id == interaction.user.id)
-    author = session.scalar(r)
-    if author and author.presentations_banned:
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if response and response.presentation_banned:
         return await interaction.response.send_message(
             lang.get("presentations_banned", interaction.guild),
             ephemeral=True)
@@ -33,7 +35,7 @@ async def presentation(interaction: discord.Interaction):
 
 @app_commands.guild_only()
 @app_commands.default_permissions(ban_members=True)
-class PresentationManage(app_commands.Group, name="presentationmanage", description="Nickname manager"):
+class PresentationManage(app_commands.Group, name="presentationmanage", description="Presentation manager"):
 
     async def on_error(self, interaction: discord.Interaction, error):
         logger.debug(f"Error {error} raised")
@@ -94,16 +96,15 @@ async def show(interaction: discord.Interaction, research: Optional[str] = None,
 async def ban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /presentationmanage ban {user} used")
 
-    r = select(User).where(User.id == user.id)
-    author = session.scalar(r)
-    if not author:
-        author = User(
-            id=user.id,
-            name=user.display_name,
-            avatar_url=user.display_avatar.url
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if not response:
+        response = Ban(
+            user_id=user.id,
+            guild_id=interaction.guild.id
         )
-        session.add(author)
-    author.presentations_banned = True
+        session.add(response)
+    response.presentation_banned = True
     session.commit()
 
     await interaction.response.send_message(
@@ -115,29 +116,30 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 async def unban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /presentationmanage unban {user} used")
 
-    r = select(User).where(User.id == user.id)
-    author = session.scalar(r)
-    if not (author and author.presentations_banned):
+    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    response = session.scalar(r)
+    if not (response and response.presentation_banned):
         return await interaction.response.send_message(
             content=f"{user} " + lang.get("presentations_not_banned", interaction.guild))
-    author.presentations_banned = False
+    response.presentation_banned = False
     session.commit()
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("presentations_unban", interaction.guild))
 
 
-@presentation_manage.command(description="Show the banlist")
+@presentation_manage.command(name="list", description="Show the banlist")
 @app_commands.describe(page="The page")
 async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
     logger.debug(f"Command /presentationmanage list used")
 
-    r = select(User).where(User.presentations_banned == True).offset(100 * page).limit(100)
-    banned_users = session.scalars(r)
+    r = select(Ban).where(Ban.guild_id == interaction.guild.id)
+    r = r.where(Ban.presentation_banned == True).offset(50 * page).limit(50)
+    results = session.scalars(r)
 
     ban_list = ""
-    for user in banned_users:
-        ban_list += f"<@{user.id}>\n"
+    for result in results:
+        ban_list += f"<@{result.user_id}>\n"
 
     banned_embed = discord.Embed(title=lang.get("presentations_list_title", interaction.guild), description=ban_list)
     banned_embed.set_footer(text=lang.get("list_page", interaction.guild) + f" {page}")

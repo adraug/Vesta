@@ -3,10 +3,11 @@ from discord import app_commands
 import logging
 import traceback
 
-from .. import vesta_client, session, lang
+from .. import vesta_client, session_maker, lang
 from ..tables import Guild, select
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 
 @app_commands.guild_only()

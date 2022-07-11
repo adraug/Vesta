@@ -6,7 +6,7 @@ from . import Base
 
 
 class CustomCommand(Base):
-    __tablename__ = "custom_commands"
+    __tablename__ = "custom_command"
 
     guild_id = db.Column(db.BigInteger, nullable=False)
     keyword = db.Column(db.String(32), nullable=False)

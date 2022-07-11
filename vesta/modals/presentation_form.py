@@ -4,11 +4,12 @@ import discord
 from sqlalchemy import select
 import logging
 
-from .. import vesta_client, session, lang
+from .. import vesta_client, session_maker, lang
 from ..views import Review
 from ..tables import Presentation, User, Guild
 
 logger = logging.getLogger(__name__)
+session = session_maker()
 
 url_regex = r'^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
 http_regex = r'^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
@@ -50,6 +51,10 @@ class PresentationForm(discord.ui.Modal, title=""):
 
     async def on_submit(self, interaction: discord.Interaction):
         logger.debug(f"PresentationForm submitted for {interaction.user}")
+
+        title = self.presentation_title.value.strip()
+        if not title:
+            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
         link_value = self.link.value
         if not re.match(http_regex, link_value):
@@ -105,6 +110,8 @@ class PresentationForm(discord.ui.Modal, title=""):
         message = await channel.send(embed=embed, view=view)
         presentation.message_id = message.id
         session.commit()
+
+        await message.create_thread(name=lang.get("thread_project", interaction.guild) + " [" + title + "]")
 
         await interaction.response.send_message(
             content=lang.get("presentation_sent", interaction.guild),
