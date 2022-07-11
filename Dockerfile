@@ -6,9 +6,9 @@ WORKDIR /app
 
 RUN apt update -y && apt install -y git
 COPY requirements.txt requirements.txt
+COPY entrypoint.sh entrypoint.sh
 RUN pip3 install -r ./requirements.txt
 COPY vesta vesta
-COPY entrypoint.sh entrypoint.sh
 ENV LOGGING_LEVEL=20
 
-ENTRYPOINT entrypoint.sh
+ENTRYPOINT ["bash", "entrypoint.sh"]
