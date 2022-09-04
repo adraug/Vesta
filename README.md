@@ -6,10 +6,10 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/adraug/vesta)
 ![GitHub](https://img.shields.io/github/license/adraug/vesta?style=plastic)
 
-![Docker Image Version (latest by date)](https://img.shields.io/docker/v/adraug/vesta?arch=amd64&style=plastic)
-![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/adraug/vesta)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/adraug/vesta?arch=amd64&style=plastic)](https://hub.docker.com/r/adraug/vesta)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/adraug/vesta)](https://hub.docker.com/r/adraug/vesta)
 
-![Developpers][developpers-shield]
+![Developers][developers-shield]
 [![Adrien][adrien-shield]][adrien-url]
 [![Lucie][lucie-shield]][lucie-url]
 
@@ -98,7 +98,7 @@ Voici les fonctionnalités qu'il y a actuellement sur Vesta :
 - `/custom remove "name"` supprime une slash commande personnalisée du serveur (staff)
 - `/custom list` affiche la liste des slash commands du serveur (staff)
 
-[developpers-shield]: https://img.shields.io/badge/-Developpers-555?style=plastic
+[developers-shield]: https://img.shields.io/badge/-Developers-555?style=plastic
 
 [adrien-shield]: https://img.shields.io/badge/-Adrien-66AADD?style=plastic&logo=Github
 [adrien-url]: https://github.com/adraug
