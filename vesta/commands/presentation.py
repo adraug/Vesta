@@ -105,7 +105,14 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
         )
         session.add(response)
     response.presentation_banned = True
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("user_result_title", interaction.guild))
@@ -122,7 +129,14 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
         return await interaction.response.send_message(
             content=f"{user} " + lang.get("presentations_not_banned", interaction.guild))
     response.presentation_banned = False
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("presentations_unban", interaction.guild))

@@ -81,7 +81,7 @@ class PresentationForm(discord.ui.Modal, title=""):
             author = User(
                 id=interaction.user.id,
                 name=interaction.user.display_name,
-                avatar_url=interaction.user.display_avatar.url
+                avatar_url=interaction.user.display_avatar.url.split("?")[0]
             )
             session.add(author)
 
@@ -109,7 +109,15 @@ class PresentationForm(discord.ui.Modal, title=""):
 
         message = await channel.send(embed=embed, view=view)
         presentation.message_id = message.id
-        session.commit()
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+
+            logger.error(traceback.format_exc())
+            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+                                                           ephemeral=True)
 
         await message.create_thread(name=lang.get("thread_project", interaction.guild) + " [" + title + "]")
 
@@ -124,4 +132,3 @@ class PresentationForm(discord.ui.Modal, title=""):
             ephemeral=True,
         )
         traceback.print_exc()
-

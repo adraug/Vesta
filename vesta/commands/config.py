@@ -43,7 +43,14 @@ async def review(interaction: discord.Interaction, channel: discord.TextChannel)
         session.add(guild)
 
     guild.review_channel = channel.id
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(lang.get("config_review", interaction.guild), ephemeral=True)
 
@@ -61,7 +68,14 @@ async def projects(interaction: discord.Interaction, channel: discord.TextChanne
         session.add(guild)
 
     guild.projects_channel = channel.id
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(lang.get("config_projects", interaction.guild), ephemeral=True)
 
@@ -81,7 +95,14 @@ async def change_lang(interaction: discord.Interaction, guild_lang: app_commands
         session.add(guild)
 
     guild.lang = guild_lang.value
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(lang.get("config_lang", interaction.guild), ephemeral=True)
 

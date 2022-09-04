@@ -1,7 +1,7 @@
 fr:
   invalid_link: Le lien n'est pas valide
   invalid_image_link: Le lien de votre image n'est pas valide
-  command_created: La commande à bien été créée !
+  command_created: La commande a bien été créée !
   custom_form: Création d'une commande custom
   custom_form_keyword: Mot clé de la commande
   custom_form_title: Titre du message

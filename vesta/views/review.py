@@ -1,6 +1,7 @@
 from datetime import datetime
 import discord
 import logging
+import traceback
 
 from .. import session_maker, vesta_client, lang
 from ..modals import RefusedReasonForm
@@ -42,7 +43,15 @@ class DropdownReview(discord.ui.Select):
         presentation.review_date = datetime.now()
         presentation.accepted = False
         presentation.reviewed_by = interaction.user.id
-        session.commit()
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+
+            logger.error(traceback.format_exc())
+            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+                                                           ephemeral=True)
 
         embed = interaction.message.embeds[0]
         embed.colour = int("ff2222", 16)
@@ -78,7 +87,15 @@ class AcceptReview(discord.ui.Button):
         presentation.review_date = datetime.now()
         presentation.accepted = True
         presentation.reviewed_by = interaction.user.id
-        session.commit()
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+
+            logger.error(traceback.format_exc())
+            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+                                                           ephemeral=True)
 
         embed = interaction.message.embeds[0]
         embed.colour = int("22ff22", 16)

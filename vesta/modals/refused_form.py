@@ -1,5 +1,6 @@
 import discord
 import logging
+import traceback
 
 from .. import vesta_client, lang
 
@@ -32,3 +33,8 @@ class RefusedReasonForm(discord.ui.Modal, title=""):
         user = await vesta_client.fetch_user(self.presentation.author_id)
         await user.send(embeds=[presentation_embed, reason_embed])
         await interaction.response.send_message(lang.get("denied_registered", interaction.guild), ephemeral=True)
+
+    async def on_error(self, interaction, error):
+        logger.error(traceback.format_exc())
+        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+

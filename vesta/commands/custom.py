@@ -74,7 +74,15 @@ async def remove(interaction: discord.Interaction, keyword: str):
     vesta_client.tree.remove_command(keyword, guild=interaction.guild)
     await vesta_client.tree.sync()
     session.delete(command)
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+
     await interaction.response.send_message(lang.get("command_deleted", interaction.guild), ephemeral=True)
     await vesta_client.tree.sync(guild=interaction.guild)
 

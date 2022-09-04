@@ -89,7 +89,14 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
         )
         session.add(response)
     response.nickname_banned = True
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("nickname_ban", interaction.guild))
@@ -106,7 +113,14 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
         return await interaction.response.send_message(
             content=f"{user} " + lang.get("nickname_not_banned", interaction.guild))
     response.nickname_banned = False
-    session.commit()
+
+    try:
+        session.commit()
+    except:
+        session.rollback()
+
+        logger.error(traceback.format_exc())
+        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
         content=f"{user} " + lang.get("nickname_unban", interaction.guild))

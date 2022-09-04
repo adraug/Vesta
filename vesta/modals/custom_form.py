@@ -1,5 +1,6 @@
 import re
 import logging
+import traceback
 
 from discord import app_commands
 import discord.ui
@@ -92,7 +93,7 @@ class CustomSlashForm(discord.ui.Modal, title=""):
             author = User(
                 id=interaction.user.id,
                 name=interaction.user.display_name,
-                avatar_url=interaction.user.display_avatar.url
+                avatar_url=interaction.user.display_avatar.url.split("?")[0]
             )
             session.add(author)
 
@@ -107,7 +108,16 @@ class CustomSlashForm(discord.ui.Modal, title=""):
             author=author
         )
         session.add(custom_command)
-        session.commit()
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+
+            logger.error(traceback.format_exc())
+            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+                                                           ephemeral=True)
+
         await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
@@ -120,6 +130,10 @@ class CustomSlashForm(discord.ui.Modal, title=""):
 
         vesta_client.tree.add_command(custom, guild=interaction.guild)
         await vesta_client.tree.sync(guild=interaction.guild)
+
+    async def on_error(self, interaction, error):
+        logger.error(traceback.format_exc())
+        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 class CustomMenuForm(discord.ui.Modal, title=""):
@@ -174,7 +188,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
         if not re.match(custom_regex, keyword):
             return await interaction.response.send_message(lang.get("invalid_keyword", interaction.guild), ephemeral=True)
 
-        command_title = self.command_title.label.strip()
+        command_title = self.command_title.value.strip()
         if not command_title:
             return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
@@ -202,7 +216,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
             author = User(
                 id=self.author.id,
                 name=self.author.display_name,
-                avatar_url=self.author.display_avatar.url
+                avatar_url=self.author.display_avatar.url.split("?")[0]
             )
             session.add(author)
         r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
@@ -220,7 +234,16 @@ class CustomMenuForm(discord.ui.Modal, title=""):
             author=author,
         )
         session.add(custom_command)
-        session.commit()
+
+        try:
+            session.commit()
+        except:
+            session.rollback()
+
+            logger.error(traceback.format_exc())
+            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+                                                           ephemeral=True)
+
         await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
@@ -231,3 +254,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
 
         vesta_client.tree.add_command(custom, guild=interaction.guild)
         await vesta_client.tree.sync(guild=interaction.guild)
+
+    async def on_error(self, interaction, error):
+        logger.error(traceback.format_exc())
+        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
