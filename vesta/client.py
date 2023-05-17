@@ -56,13 +56,21 @@ class Vesta(discord.Client):
             if active:
                 await self.tree.sync(guild=guild)
 
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         logger.debug(f"Member joined : {member}!")
+        if not (await member.guild.fetch_member(self.user.id)).guild_permissions.manage_nicknames:
+            logger.debug(f"Bot doesn't have manage nicknames permission on {member.guild}")
+            return
+
         if not re.match(regex_name, member.display_name):
             await member.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         logger.debug(f"Member update : {after}!")
+        if not (await after.guild.fetch_member(self.user.id)).guild_permissions.manage_nicknames:
+            logger.debug(f"Bot doesn't have manage nicknames permission on {after.guild}")
+            return
+
         if not after.guild_permissions.manage_nicknames and not re.match(regex_name, after.display_name):
             await after.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 
