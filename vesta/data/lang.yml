@@ -2,34 +2,35 @@ fr:
   invalid_link: Le lien n'est pas valide
   invalid_image_link: Le lien de votre image n'est pas valide
   command_created: La commande a bien été créée !
-  custom_form: Création d'une commande custom
+  custom_form: Création d'une commande personnalisée
   custom_form_keyword: Mot clé de la commande
   custom_form_title: Titre du message
   custom_form_content: Contenu du message
   custom_form_link: Lien
   custom_form_image: Image
   custom_form_color: Couleur de l'embed
-  command_already_exist: La commande existe déjà
+  command_already_exist: Cette commande existe déjà
   command_not_exist: Cette commande n'existe pas
-  command_deleted: La custom command à bien été supprimée
+  command_deleted: La commande personnalisée a bien été supprimée
   list_commands: Liste des commandes
   list_commands2: Partie 2
-  too_much_commands: Il y a déjà trop de custom commands
+  too_much_commands: Il y a déjà trop de commandes personnalisées
   unexpected_error: Une erreur s'est produite
-  permissions_error: Vous n'avez pas les permissions pour faire cette commande
-  config_review: Le salon de review à bien été config
-  config_projects: Le salon de projets à bien été config
-  config_lang: La langue à bien été changée
-  nickname_banned: Vous avez été banni du système de rename
-  nickname_incorrect_title: ⚠️Pseudo incorrect !
-  nickname_incorrect_description: "Ce nom n'est pas valide, merci d'entrer un nom validant la regex suivante : "
-  nickname_changed: Votre pseudo à été changé avec succès !
-  bot_permissions_error: "Malheureusement, le bot n'a pas les permissions suffisantes pour faire cela, merci de demander à vos administrateurs de lui fournir les suivantes :"
-  nickname_ban: a bien été banni de la commande nickname
-  nickname_not_banned: n'est pas banni de la commande nickname
-  nickname_unban: a bien été débanni de la commande nickname
-  nickname_list_title: Membres bannis du nickname
-  presentations_not_available: Le systeme de présentation n'a pas été activé sur votre serveur
+  permissions_error: Vous n'avez pas les permissions pour exécuter cette commande
+  config_review: Le salon de revue à bien été modifié
+  config_projects: Le salon de projets à bien été modifié
+  config_coc_role: Le role à mentionner lors des parties de Clash of Code a bien été config
+  config_lang: La langue a bien été modifiée
+  nickname_banned: Vous avez été banni du système de renommage
+  nickname_incorrect_title: ⚠️ Pseudo incorrect !
+  nickname_incorrect_description: "Ce pseudo n'est pas valide, merci d'entrer un nom respectant la regex suivante : "
+  nickname_changed: Votre pseudo a bien été modifié !
+  bot_permissions_error: "Malheureusement, le bot n'a pas les assez de permissions pour réaliser cette action, merci de demander à vos administrateurs de lui accorder les permissions suivantes :"
+  nickname_ban: a bien été banni de la commande `/nickname`
+  nickname_not_banned: n'est pas banni de la commande `/nickname`
+  nickname_unban: a bien été débanni de la commande `/nickname`
+  nickname_list_title: Membres bannis du `/nickname`
+  presentations_not_available: Le système de présentation n'a pas été activé sur votre serveur
   presentations_banned: Vous avez été banni du système de présentation
   minimum_one_parameter: Merci de mettre au moins un des paramètres
   invalid_number: Merci d'entrez un nombre valide
@@ -45,7 +46,7 @@ fr:
   presentation_form_description: Description du projet
   presentation_form_link: Lien du projet
   presentation_form_image: Lien de l'image
-  review_channel_error: Il semblerais y avoir un problème avec le salon de review
+  review_channel_error: Il semble qu'il y a un problème avec le salon de review
   presentation_sent: Votre projet sera étudié dans les plus brefs délais
   denied_form: Raison de refus
   denied_form_reason: Raison du refus
@@ -58,85 +59,100 @@ fr:
   reason_other: Autre
   deny: Refuser
   denied_by: Refusé par
-  projects_channel_error: Il semblerais y avoir un problème avec le salon de projets
+  projects_channel_error: Il semble qu'il y a un problème avec le salon de projets
   accept: Accepter
   accepted_by: Accepté par
-  text_not_enough_code: "Nous préférons mettre en avant des projets matures et aboutis, avec une quantité de code suffisante. Votre projet n'est ainsi pas assez gros à notre goût. Certes, cela est très bien de faire des projets, c'est une bonne façon d'apprendre la programmation, mais il faudrait peut-être l'épaissir un peu, ou attendre un plus gros projet, avant de le partager comme ça ^^."
-  text_not_open_source: "Le but du salon est de promouvoir l'open source, pas de faire de la publicité. Ainsi, nous préférons refuser les projets qui ne donnent pas un lien vers un github, gitlab, ou tout autre site destiné au partage de code."
-  text_illegal: "Votre projet est non conformes aux règles de ce discord ou aux TOS de discord. Par conséquent, nous ne pouvons pas vous laisser poster ce projet dans le salon."
+  text_not_enough_code: >
+    Nous préférons mettre en avant des projets matures et aboutis, avec une quantité de code suffisante.
+    Votre projet n'est ainsi pas assez gros à notre goût. Certes, cela est très bien de faire des projets,
+    c'est une bonne façon d'apprendre la programmation, mais il faudrait peut-être l'épaissir un peu,
+    ou attendre un plus gros projet, avant de le partager comme ça ^^.
+  text_not_open_source: >
+    Le but du salon est de promouvoir l'open source, pas de faire de la publicité. 
+    Ainsi, nous préférons refuser les projets qui ne donnent pas un lien vers un github, gitlab,
+    ou tout autre site destiné au partage de code.
+  text_illegal: >
+    Votre projet est non conformes aux règles de ce discord ou aux TOS de discord.
+    Par conséquent, nous ne pouvons pas vous laisser poster ce projet dans le salon.
   too_long_keyword: Le mot-clé entré est trop long
-  invalid_keyword: Le mot clé est invalide
+  invalid_keyword: Le mot-clé est invalide
   custom_invalid_args: Merci de fournir des arguments valides
   thread_project: Discussion sur le projet
   nick_too_long: Ce nom est trop long
 en:
   invalid_link: The link is not valid
   invalid_image_link: The link of the image is not valid
-  command_created: Command created successfully
+  command_created: Command successfully created
   custom_form: Creation of a custom command
-  custom_form_keyword: Keyword of the command
-  custom_form_title: Title of the message
-  custom_form_content: Content of the message
+  custom_form_keyword: Command keyword
+  custom_form_title: Message title
+  custom_form_content: Message content
   custom_form_link: Link
   custom_form_image: Image
-  custom_form_color: Color of the embed
-  command_already_exist: This command already exist
+  custom_form_color: Embed color
+  command_already_exist: This command already exists
   command_not_exist: This command does not exist
   command_deleted: The custom command have been deleted successfully
   list_commands: List of the custom commands
   list_commands2: Part 2
-  too_much_commands: There is already too much commands
-  unexpected_error: An unexpected error have been raised
-  permissions_error: You don't have the permissions to do this command
-  config_review: Review channel have been configured
-  config_projects: Projects channel have been configured
-  config_lang: The lang have been updated
+  too_much_commands: There are already too much commands
+  unexpected_error: An unexpected error occurred
+  permissions_error: You don't have enough permissions to run this command
+  config_review: Review channel successfully configured
+  config_projects: Projects channel successfully configured
+  config_lang: The lang was updated
   nickname_banned: You have been banned from the nickname system
-  nickname_incorrect_title: ⚠️Incorrect Name !
-  nickname_incorrect_description: "This name is not valid, please prompt something correct for the regex : "
-  nickname_changed: Your nickname have been updated
-  bot_permissions_error: "The bot don't have enough permissions to do this, please ask your administrator to add the following ones :"
-  nickname_ban: have been banned from the nickname command
+  nickname_incorrect_title: ⚠️ Incorrect nickname !
+  nickname_incorrect_description: "This name is not valid, please input a nickname matching the regex: "
+  nickname_changed: Your nickname was updated
+  bot_permissions_error: "The bot isn't powerful enough to perform this action, please ask your administrator to grant the following permissions:"
+  nickname_ban: was banned from the nickname command
   nickname_not_banned: is not banned from the nickname command
-  nickname_unban: have been unbanned from the nickname command
+  nickname_unban: was unbanned from the nickname command
   nickname_list_title: Nickname Banned Members
   presentations_not_available: The presentations system is not active on this server
-  presentations_banned: You have been banned from the presentations system
+  presentations_banned: You were banned from the presentations system
   minimum_one_parameter: Please provide at least one argument
-  invalid_number: Please enter a valid number
-  no_result: No result found
-  user_result_title: Result from the research by user
-  presentations_ban: have been banned from the presentations system
+  invalid_number: Please input a valid number
+  no_result: No results found
+  user_result_title: Result from the search by user
+  presentations_ban: was banned from the presentations system
   presentations_not_banned: is not banned of the presentations system
-  presentations_unban: have been unbanned from the presentations system
+  presentations_unban: was unbanned from the presentations system
   presentations_list_title: Presentations System Banned Members
   list_page: Page
   presentation_form: Presentation
-  presentation_form_title: Name of the project
-  presentation_form_description: Description of the project
-  presentation_form_link: Link of the project
-  presentation_form_image: Link of the image
-  review_channel_error: It seems like there is a problem with the review channel
+  presentation_form_title: Project name
+  presentation_form_description: Project description
+  presentation_form_link: Project link
+  presentation_form_image: Image link
+  review_channel_error: It seems like there was a problem with the review channel
   presentation_sent: Your project will be reviewed soon
-  denied_form: Denied reason
-  denied_form_reason: Denied reason
-  denied_feedback_title: Your presentation has been refused
-  denied_feedback_content: "Reason :"
+  denied_form: Denial reason
+  denied_form_reason: Denial reason
+  denied_feedback_title: Your presentation was rejected
+  denied_feedback_content: "Reason:"
   denied_registered: Reason registered
   reason_not_enough_code: Not enough code
-  reason_not_open_source: Project not open-source
+  reason_not_open_source: Non open-source project
   reason_illegal: Illegal Project
   reason_other: Other
   deny: Deny
   denied_by: Denied by
-  projects_channel_error: It seems like there is a problem with the projects channel
+  projects_channel_error: It seems like there was a problem with the projects channel
   accept: Accept
   accepted_by: Accepted by
-  text_not_enough_code: "We prefer to share mature and complete projects, with a certain amount of code. Your project is not big enough to our liking. Yes, making projects is a very good way to learn about programming, but you could maybe elaborate a bit more, or wait util you do a bigger project before sharing it."
-  text_not_open_source: "The goal of the channel is to promote open source, not make advertisement. Therefore we must reject projects that do not contain link to any github, gitlab, or other code sharing website."
-  text_illegal: "Your project does not follow our rules or Discord TOS. Therefore, we cannot post your project in the channel"
+  text_not_enough_code: >
+    We prefer to share mature and complete projects, with a certain amount of code.
+    Your project was not considered as being big enough. Yes, making projects is a very good way to learn about programming,
+    but you could maybe elaborate a bit more, or wait util you make a bigger project before sharing it."
+  text_not_open_source: >
+    The goal of the channel is promoting open source, not making advertisement.
+    Therefore we reject projects that do not link to any github, gitlab, or other code sharing website.
+  text_illegal: >
+    Your project does not follow our policy or Discord TOS. Therefore, we cannot allow your project in the channel"
   too_long_keyword: This keyword is too long
   invalid_keyword: This keyword is not valid
-  custom_invalid_args: Please provide good arguments
-  thread_project: Talking about the project
-  nick_too_long: This nick is too long
+  custom_invalid_args: Please provide valid arguments
+  thread_project: Chat about the project
+  nick_too_long: This nickname is too long
