@@ -20,7 +20,7 @@ fr:
   config_review: Le salon de revue à bien été modifié
   config_projects: Le salon de projets à bien été modifié
   config_lang: La langue a bien été modifiée
-  nickname_banned: Vous avez été banni du système de renommage
+  nickname_banned: Vous avez été banni de la commande `/nickname`
   nickname_incorrect_title: ⚠️ Pseudo incorrect !
   nickname_incorrect_description: "Ce pseudo n'est pas valide, merci d'entrer un nom respectant la regex suivante : "
   nickname_changed: Votre pseudo a bien été modifié !
