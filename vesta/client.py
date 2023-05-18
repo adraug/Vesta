@@ -35,20 +35,20 @@ class Vesta(discord.Client):
             active = False
 
             r = select(CustomCommand).where(CustomCommand.guild_id == guild.id)
-            with session_maker() as session:
-                responses = session.scalars(r)
-                for custom_command in responses:
-                    active = True
+            session = session_maker()
+            responses = session.scalars(r)
+            for custom_command in responses:
+                active = True
 
-                    def create_command(custom_command):
-                        @app_commands.guild_only()
-                        async def command(interaction: discord.Interaction):
-                            await interaction.response.send_message(embed=custom_command.embed())
+                def create_command(custom_command):
+                    @app_commands.guild_only()
+                    async def command(interaction: discord.Interaction):
+                        await interaction.response.send_message(embed=custom_command.embed())
 
-                        return app_commands.Command(name=custom_command.keyword.lower(), description=custom_command.title,
-                                                    callback=command)
+                    return app_commands.Command(name=custom_command.keyword.lower(), description=custom_command.title,
+                                                callback=command)
 
-                    self.tree.add_command(create_command(custom_command), guild=guild)
+                self.tree.add_command(create_command(custom_command), guild=guild)
 
             for com in self.tree.get_commands(guild=guild):
                 logger.debug(f"Custom {com} name : {com.name} description : {com.description} end")
