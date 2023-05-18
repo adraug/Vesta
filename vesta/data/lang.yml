@@ -19,7 +19,7 @@ fr:
   permissions_error: Vous n'avez pas les permissions pour exécuter cette commande
   config_review: Le salon de revue à bien été modifié
   config_projects: Le salon de projets à bien été modifié
-  config_coc_role: Le role à mentionner lors des parties de Clash of Code a bien été config
+  config_coc_role: Le role à mentionner lors des parties de Clash of Code a bien été configuré
   config_lang: La langue a bien été modifiée
   nickname_banned: Vous avez été banni du système de renommage
   nickname_incorrect_title: ⚠️ Pseudo incorrect !
@@ -100,6 +100,7 @@ en:
   permissions_error: You don't have enough permissions to run this command
   config_review: Review channel successfully configured
   config_projects: Projects channel successfully configured
+  config_coc_role: The role to mention when a Clash of Code game is started was updated
   config_lang: The lang was updated
   nickname_banned: You have been banned from the nickname system
   nickname_incorrect_title: ⚠️ Incorrect nickname !
