@@ -30,4 +30,4 @@ class Lang:
             return self.data[lang][item]
 
         logger.error(f"Element {item} not found : guild {guild}, lang {lang}")
-        return "Could not load"
+        return f"Could not load <{item}>"

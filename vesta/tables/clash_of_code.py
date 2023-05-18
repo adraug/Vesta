@@ -5,17 +5,16 @@ from sqlalchemy.orm import relationship
 
 from . import Base
 from .. import session_maker
-from ..services import ClashOfCodeGame
+from ..services import ClashOfCodeGame, clash_of_code_helper
 
 session = session_maker()
 
 class ClashOfCodeGuildGame(Base):
     __tablename__ = "clash_of_code_guild_game"
 
-    guild_id = db.Column(db.BigInteger, nullable=False)
-    last_clash_id = db.Column(db.String(32), nullable=True)
-
-    db.PrimaryKeyConstraint(guild_id)
+    guild_id = db.Column(db.BigInteger, nullable=False, primary_key=True)
+    last_clash_id = db.Column(db.String(511), nullable=True)
+    announcement_message_id = db.Column(db.BigInteger, nullable=True)
 
     def fetch(self) -> Optional[ClashOfCodeGame]:
         """
@@ -24,9 +23,7 @@ class ClashOfCodeGuildGame(Base):
         :return: The latest clash of code game
         """
 
-        helper = ClashOfCodeHelper()
-
-        return helper.fetch(self.last_clash_id)
+        return clash_of_code_helper.fetch(self.last_clash_id)
 
     def can_start_new(self) -> bool:
         """
@@ -49,16 +46,19 @@ class ClashOfCodeGuildGame(Base):
         :return: None
         """
         self.last_clash_id = None
+        self.announcement_message_id = None
         session.commit()
 
-    def start_new(self, clash_id: int) -> None:
+    def start_new(self, clash_id: str, message_id: int) -> None:
         """
         Starts a new clash of code game
 
         :param clash_id: The clash of code game id
+        :param message_id:
         :return: None
         """
         self.last_clash_id = clash_id
+        self.announcement_message_id = message_id
         session.commit()
 
 class ClashOfCodeRanking(Base):

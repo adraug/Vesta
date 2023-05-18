@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
@@ -35,6 +36,7 @@ class ClashOfCodePlayer:
 
     name: str
     role: Role
+    rank: int
 
     def __init__(self, **kwargs):
         """
@@ -48,6 +50,7 @@ class ClashOfCodePlayer:
     def hydrate(self, *,
                 codingamerNickname: str,
                 status: str,
+                rank: Optional[int],
                 **ignored) -> "ClashOfCodePlayer":
         """
         Hydrates the object with the given data
@@ -58,6 +61,7 @@ class ClashOfCodePlayer:
         """
         self.name = codingamerNickname
         self.role = Role[status.upper()] or Role.STANDARD
+        self.rank = rank
 
         return self
 
@@ -76,6 +80,9 @@ class ClashOfCodeGame:
     modes: List[GameMode]
     mode: Optional[str]
 
+    start_time: datetime.datetime
+    end_time: Optional[datetime.datetime]
+
     def __init__(self, **kwargs):
         """
         Initializes the object with the given data
@@ -93,6 +100,8 @@ class ClashOfCodeGame:
                 programmingLanguages: List[str],
                 modes: List[str],
                 mode: Optional[str] = None,
+                startTime: str,
+                endTime: Optional[str] = None,
                 **ignored) -> "ClashOfCodeGame":
         """
         Hydrates the object with the given data
@@ -121,43 +130,55 @@ class ClashOfCodeGame:
         ]
         self.mode = mode
 
+        self.start_time = datetime.datetime.strptime(startTime, "%B %d, %Y, %I:%M:%S %p")
+        self.end_time = datetime.datetime.strptime(endTime, "%B %d, %Y, %I:%M:%S %p") if endTime else None
+
         return self
 
     def embed(self, lang_file, guild: discord.Guild):
         emojis = {
-            'True': '🟢',
-            'False': '🔴'
+            "True": lang_file.get("general_yes", guild),
+            "False": lang_file.get("general_no", guild)
         }
-
-        description = f"""
-        **{lang_file.get("coc_started", guild)}** {emojis[str(self.started)]}
-        **{lang_file.get("coc_finished", guild)}** {emojis[str(self.finished)]}
-        """
 
         embed = Embed(
             title=lang_file.get("coc_game_title", guild),
-            url=self.link,
-            description=description
+            color=discord.Color.blurple(),
         )
+
+        embed.add_field(name=lang_file.get("coc_started", guild),
+                        value=emojis[str(self.started)],
+                        inline=True)
+        embed.add_field(name=lang_file.get("coc_finished", guild),
+                        value=emojis[str(self.finished)],
+                        inline=True)
 
         if not self.mode:
             embed.add_field(name=lang_file.get("coc_game_modes", guild),
-                            value=f"`{'`, `'.join([mode.name.lower() for mode in self.modes])}`",
+                            value=' - ' + "\n - ".join(
+                                [lang_file.get(f"coc_mode_{mode.name.lower()}", guild) for mode in self.modes]),
                             inline=False)
         else:
             embed.add_field(name=lang_file.get("coc_game_mode", guild),
                             value=f"`{self.mode.lower()}`",
                             inline=False)
 
-        embed.add_field(name=lang_file.get("coc_game_players", guild),
-                        value=f"`{'`, `'.join([player.name for player in self.players])}`",
-                        inline=False)
+        if not self.finished:
+            embed.add_field(name=lang_file.get("coc_game_players", guild),
+                            value=f"`{'`, `'.join([player.name for player in self.players])}`",
+                            inline=False)
 
-        languages = f"`{'`, `'.join(self.programming_language)}`" \
-                        if len(self.programming_language) >= 1 \
-                        else lang_file.get("coc_all_languages", guild)
+            languages = f"`{'`, `'.join(self.programming_language)}`" \
+                if len(self.programming_language) >= 1 \
+                else lang_file.get("coc_all_languages", guild)
 
-        embed.add_field(name=lang_file.get("coc_game_languages", guild),
-                        value=languages)
+            embed.add_field(name=lang_file.get("coc_game_languages", guild),
+                            value=languages)
+        else:
+            # winner is player with the best "rank" field
+            winner = sorted(self.players, key=lambda player: player.rank)[0]
+            embed.add_field(name=lang_file.get("coc_game_winner", guild),
+                            value=f"`{winner.name}`",
+                            inline=False)
 
         return embed
