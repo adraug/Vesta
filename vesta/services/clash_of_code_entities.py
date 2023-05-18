@@ -2,6 +2,10 @@ from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
+from discord import Embed
+
+from vesta import lang
+
 
 class GameMode(Enum):
     """
@@ -41,16 +45,17 @@ class ClashOfCodePlayer:
         self.hydrate(**kwargs)
 
     def hydrate(self, *,
-                condingamerNickname: str,
-                status: str) -> "ClashOfCodePlayer":
+                codingamerNickname: str,
+                status: str,
+                **ignored) -> "ClashOfCodePlayer":
         """
         Hydrates the object with the given data
 
-        :param condingamerNickname: The player's nickname
+        :param codingamerNickname: The player's nickname
         :param status: The player's role
         :return: The hydrated object for chaining convenience
         """
-        self.name = condingamerNickname
+        self.name = codingamerNickname
         self.role = Role[status.upper()] or Role.STANDARD
 
         return self
@@ -80,13 +85,14 @@ class ClashOfCodeGame:
         self.hydrate(**kwargs)
 
     def hydrate(self, *,
-                 publicHandle: str,
-                 started: bool,
-                 finished: bool,
-                 players: List[dict],
-                 programmingLanguages: List[str],
-                 modes: List[str],
-                 mode: Optional[str] = None) -> "ClashOfCodeGame":
+                publicHandle: str,
+                started: bool,
+                finished: bool,
+                players: List[dict],
+                programmingLanguages: List[str],
+                modes: List[str],
+                mode: Optional[str] = None,
+                **ignored) -> "ClashOfCodeGame":
         """
         Hydrates the object with the given data
 
@@ -115,3 +121,37 @@ class ClashOfCodeGame:
         self.mode = mode
 
         return self
+
+    def embed(self):
+        emojis = {
+            'True': '🟢',
+            'False': '🔴'
+        }
+
+        description = f"""
+        **{lang.get("clash_of_code_game.started")}** {emojis[str(self.started)]}
+        **{lang.get("clash_of_code_game.finished")}** {emojis[str(self.finished)]}
+        """
+
+        embed = Embed(
+            title=lang.get("clash_of_code.game_title"),
+            url=self.link,
+            description=description
+        )
+
+        if not self.mode:
+            embed.add_field(name=lang.get("clash_of_code.game_modes"),
+                            value=f"`{'`, `'.join([mode.name.lower() for mode in self.modes])}`")
+        else:
+            embed.add_field(name=lang.get("clash_of_code.game_mode"),
+                            value=f"`{self.mode.lower()}`")
+
+        embed.add_field(name=lang.get("clash_of_code.game_players"),
+                        value=f"`{'`, `'.join([player.name for player in self.players])}`")
+
+        languages = f"`{'`, `'.join(self.programming_language)}`" \
+                        if len(self.programming_language) >= 1 \
+                        else lang.get("clash_of_code.all_languages")
+
+        embed.add_field(name=lang.get("clash_of_code.game_languages"),
+                        value=languages)

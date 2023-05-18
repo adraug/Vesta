@@ -2,11 +2,18 @@ import requests
 from vesta.services.clash_of_code_entities import *
 
 
+def game_id_from_link(link: str) -> str:
+    return link.split("/")[-1]
+
+
 class ClashOfCodeHelper:
+    __instance = None
     BASE_ENDPOINT = "https://www.codingame.com/services/ClashOfCode/"
 
-    def __init__(self):
-        pass
+    def __new__(cls, *args, **kwargs):
+        if ClashOfCodeHelper.__instance is None:
+            ClashOfCodeHelper.__instance = super(ClashOfCodeHelper, cls).__new__(cls, *args, **kwargs)
+        return ClashOfCodeHelper.__instance
 
     def fetch(self, game_id) -> Optional[ClashOfCodeGame]:
         """
@@ -17,12 +24,12 @@ class ClashOfCodeHelper:
         """
         r = requests.post(f"{self.BASE_ENDPOINT}findClashByHandle", json=[
             game_id
-        ]).json()
+        ])
 
-        if r["id"] == 502 or "Clash not found" in r["message"]:
+        if r.status_code != 200:
             return None
 
-        return ClashOfCodeGame(**r)
+        return ClashOfCodeGame(**r.json())
 
     def update(self, game: ClashOfCodeGame) -> ClashOfCodeGame:
         """
@@ -30,13 +37,15 @@ class ClashOfCodeHelper:
 
         :param game: The game object to update
         :return: The updated game object for chaining convenience
+        :raises NameError: If there was an error updating the game object
         """
         r = requests.post(f"{self.BASE_ENDPOINT}findClashByHandle", json=[
-            game.link.split("/")[-1]
-        ]).json()
+            game_id_from_link(game.link)
+        ])
 
-        if r["id"] == 502 or "Clash not found" in r["message"]:
-            raise NameError("Clash does not exist anymore")
+        if r.status_code != 200:
+            raise NameError("There was an error updating the game object")
 
-        game.hydrate(**r)
+        game.hydrate(**r.json())
         return game
+

@@ -8,4 +8,5 @@ from .users import User
 from .custom_commands import CustomCommand
 from .guilds import Guild
 from .bans import Ban
-from .clash_of_code import ClashOfCode
+from .clash_of_code import ClashOfCodeRanking,\
+                           ClashOfCodeGuildGame

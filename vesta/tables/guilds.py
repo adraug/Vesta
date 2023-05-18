@@ -2,7 +2,6 @@ import sqlalchemy as db
 
 from . import Base
 
-
 class Guild(Base):
     __tablename__ = "guild"
 
