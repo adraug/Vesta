@@ -80,7 +80,7 @@ nick_manage = NickManage()
 async def ban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /nickmanage ban {user} used")
 
-    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    r = select(Ban).where(Ban.user_id == user.id).where(Ban.guild_id == interaction.guild.id)
     response = session.scalar(r)
     if not response:
         response = Ban(
@@ -107,7 +107,7 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 async def unban(interaction: discord.Interaction, user: discord.Member):
     logger.debug(f"Command /nickmanage unban {user} used")
 
-    r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
+    r = select(Ban).where(Ban.user_id == user.id).where(Ban.guild_id == interaction.guild.id)
     response = session.scalar(r)
     if not (response and response.nickname_banned):
         return await interaction.response.send_message(
