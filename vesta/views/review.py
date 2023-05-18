@@ -3,7 +3,7 @@ import discord
 import logging
 import traceback
 
-from .. import session_maker, vesta_client, lang
+from .. import session_maker, vesta_client, lang_file
 from ..modals import RefusedReasonForm
 from ..tables import select, Guild, Presentation
 
@@ -14,12 +14,12 @@ session = session_maker()
 class DropdownReview(discord.ui.Select):
     def __init__(self, interaction):
         options = [
-            discord.SelectOption(label=lang.get("reason_not_enough_code", interaction.guild), value="text_not_enough_code", description='', emoji='📝'),
-            discord.SelectOption(label=lang.get("reason_not_open_source", interaction.guild), value="text_not_open_source", description='', emoji='🔒'),
-            discord.SelectOption(label=lang.get("reason_illegal", interaction.guild), value="text_illegal", description='', emoji='👮'),
-            discord.SelectOption(label=lang.get("reason_other", interaction.guild), value="Other", description='', emoji='✒')
+            discord.SelectOption(label=lang_file.get("reason_not_enough_code", interaction.guild), value="text_not_enough_code", description='', emoji='📝'),
+            discord.SelectOption(label=lang_file.get("reason_not_open_source", interaction.guild), value="text_not_open_source", description='', emoji='🔒'),
+            discord.SelectOption(label=lang_file.get("reason_illegal", interaction.guild), value="text_illegal", description='', emoji='👮'),
+            discord.SelectOption(label=lang_file.get("reason_other", interaction.guild), value="Other", description='', emoji='✒')
         ]
-        super().__init__(placeholder=lang.get("deny", interaction.guild), options=options, custom_id="deny_select")
+        super().__init__(placeholder=lang_file.get("deny", interaction.guild), options=options, custom_id="deny_select")
 
     async def callback(self, interaction: discord.Interaction):
 
@@ -34,8 +34,8 @@ class DropdownReview(discord.ui.Select):
             presentation_embed = presentation.embed('222222')
             reason_embed = discord.Embed(
                 colour=int('ff2222', 16),
-                title=lang.get("denied_feedback_title", interaction.guild),
-                description=f"{lang.get('denied_feedback_content', interaction.guild)} {lang.get(self.values[0], interaction.guild)}")
+                title=lang_file.get("denied_feedback_title", interaction.guild),
+                description=f"{lang_file.get('denied_feedback_content', interaction.guild)} {lang_file.get(self.values[0], interaction.guild)}")
             user = await vesta_client.fetch_user(presentation.author_id)
             await user.send(embeds=[presentation_embed, reason_embed])
 
@@ -50,12 +50,12 @@ class DropdownReview(discord.ui.Select):
             session.rollback()
 
             logger.error(traceback.format_exc())
-            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+            return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild),
                                                            ephemeral=True)
 
         embed = interaction.message.embeds[0]
         embed.colour = int("ff2222", 16)
-        embed.set_footer(text=lang.get("denied_by", interaction.guild) + f" {interaction.user.display_name}")
+        embed.set_footer(text=lang_file.get("denied_by", interaction.guild) + f" {interaction.user.display_name}")
         embed.timestamp = presentation.review_date
         await interaction.message.edit(embed=embed, view=None)
         self.view.stop()
@@ -64,7 +64,7 @@ class DropdownReview(discord.ui.Select):
 class AcceptReview(discord.ui.Button):
 
     def __init__(self, interaction):
-        super().__init__(style=discord.ButtonStyle.green, label=lang.get("accept", interaction.guild), custom_id="accept_button")
+        super().__init__(style=discord.ButtonStyle.green, label=lang_file.get("accept", interaction.guild), custom_id="accept_button")
 
     async def callback(self, interaction: discord.Interaction):
 
@@ -77,11 +77,11 @@ class AcceptReview(discord.ui.Button):
         guild = session.scalar(r)
 
         if not guild or not guild.projects_channel:
-            return interaction.response.send_message(lang.get("projects_channel_error", interaction.guild))
+            return interaction.response.send_message(lang_file.get("projects_channel_error", interaction.guild))
 
         channel = vesta_client.get_channel(guild.projects_channel)
         if not channel:
-            return interaction.response.send_message(lang.get("projects_channel_error", interaction.guild))
+            return interaction.response.send_message(lang_file.get("projects_channel_error", interaction.guild))
 
         presentation.reviewed = True
         presentation.review_date = datetime.now()
@@ -94,18 +94,18 @@ class AcceptReview(discord.ui.Button):
             session.rollback()
 
             logger.error(traceback.format_exc())
-            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+            return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild),
                                                            ephemeral=True)
 
         embed = interaction.message.embeds[0]
         embed.colour = int("22ff22", 16)
-        embed.set_footer(text=lang.get("accepted_by", interaction.guild) + f" {interaction.user.display_name}")
+        embed.set_footer(text=lang_file.get("accepted_by", interaction.guild) + f" {interaction.user.display_name}")
         embed.timestamp = presentation.review_date
         await interaction.response.edit_message(embed=embed, view=None)
         embed.title = " ".join(embed.title.split()[1:])
 
         message = await channel.send(embed=embed)
-        await message.create_thread(name=lang.get("thread_project", interaction.guild) + " [" + embed.title + "]")
+        await message.create_thread(name=lang_file.get("thread_project", interaction.guild) + " [" + embed.title + "]")
 
         self.view.stop()
 

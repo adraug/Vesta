@@ -4,7 +4,7 @@ import discord
 from sqlalchemy import select
 import logging
 
-from .. import vesta_client, session_maker, lang
+from .. import vesta_client, session_maker, lang_file
 from ..views import Review
 from ..tables import Presentation, User, Guild
 
@@ -41,11 +41,11 @@ class PresentationForm(discord.ui.Modal, title=""):
     def __init__(self, interaction):
         logger.debug(f"PresentationForm created for {interaction.user}")
 
-        self.title = lang.get("presentation_form", interaction.guild)
-        self.presentation_title.label = lang.get("presentation_form_title", interaction.guild)
-        self.description.label = lang.get("presentation_form_description", interaction.guild)
-        self.link.label = lang.get("presentation_form_link", interaction.guild)
-        self.image_url.label = lang.get("presentation_form_image", interaction.guild)
+        self.title = lang_file.get("presentation_form", interaction.guild)
+        self.presentation_title.label = lang_file.get("presentation_form_title", interaction.guild)
+        self.description.label = lang_file.get("presentation_form_description", interaction.guild)
+        self.link.label = lang_file.get("presentation_form_link", interaction.guild)
+        self.image_url.label = lang_file.get("presentation_form_image", interaction.guild)
 
         super().__init__()
 
@@ -54,7 +54,7 @@ class PresentationForm(discord.ui.Modal, title=""):
 
         title = self.presentation_title.value.strip()
         if not title:
-            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
+            return await interaction.response.send_message(lang_file.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
         link_value = self.link.value
         if not re.match(http_regex, link_value):
@@ -62,7 +62,7 @@ class PresentationForm(discord.ui.Modal, title=""):
                 link_value = 'https://' + link_value
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_link", interaction.guild),
+                    content=lang_file.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.image_url.value
@@ -71,7 +71,7 @@ class PresentationForm(discord.ui.Modal, title=""):
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_image_link", interaction.guild),
+                    content=lang_file.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
 
@@ -88,11 +88,11 @@ class PresentationForm(discord.ui.Modal, title=""):
         r = select(Guild).where(Guild.id == interaction.guild_id)
         guild = session.scalar(r)
         if not guild or not guild.review_channel:
-            return await interaction.response.send_message(lang.get("review_channel_error", interaction.guild))
+            return await interaction.response.send_message(lang_file.get("review_channel_error", interaction.guild))
 
         channel = vesta_client.get_channel(guild.review_channel)
         if not channel:
-            return await interaction.response.send_message(lang.get("review_channel_error", interaction.guild))
+            return await interaction.response.send_message(lang_file.get("review_channel_error", interaction.guild))
 
         presentation = Presentation(
             title=self.presentation_title.value,
@@ -116,19 +116,19 @@ class PresentationForm(discord.ui.Modal, title=""):
             session.rollback()
 
             logger.error(traceback.format_exc())
-            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+            return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild),
                                                            ephemeral=True)
 
-        await message.create_thread(name=lang.get("thread_project", interaction.guild) + " [" + title + "]")
+        await message.create_thread(name=lang_file.get("thread_project", interaction.guild) + " [" + title + "]")
 
         await interaction.response.send_message(
-            content=lang.get("presentation_sent", interaction.guild),
+            content=lang_file.get("presentation_sent", interaction.guild),
             ephemeral=True)
         await view.wait()
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         await interaction.response.send_message(
-            content=lang.get("unexpected_error", interaction.guild),
+            content=lang_file.get("unexpected_error", interaction.guild),
             ephemeral=True,
         )
         traceback.print_exc()

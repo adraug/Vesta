@@ -80,33 +80,32 @@ fr:
   custom_invalid_args: Merci de fournir des arguments valides
   thread_project: Discussion sur le projet
   nick_too_long: Ce nom est trop long
-  clash_of_code:
-    invalid_link: Ce lien ne semble pas lié à une partie de Clash of Code valide !
-    game_already_started: La partie de Clash of Code que vous avez fourni est déjà en cours / terminée !
-    already_in_progress: Une partie de Clash of Code est déjà en cours sur ce serveur !
-    successfully_invited: Vous avez bien invité les autres membres du serveur à rejoindre la partie !
-    all_languages: Tous les langages
-    role_not_set: >
-      Le rôle à mentionner lors des parties de Clash of Code n'a 
-      pas été configuré sur ce serveur ! Prévenez un administrateur !
-    role_not_found: >
-      Le configuré rôle pour être mentionné lors des parties de Clash of Code
-      n'a pas été trouvé ! Prévenez un administrateur !
-    channel_not_set: >
-      Le salon où envoyer les invitations pour les parties de Clash of Code n'a 
-      pas été configuré sur ce serveur ! Prévenez un administrateur !
-    channel_not_found: >
-      Le configuré salon où envoyer les invitations pour les parties de Clash of Code
-      n'a pas été trouvé ! Prévenez un administrateur !
-    started: "Commencé :"
-    finished: "Terminé :"
-    game_title: Nouvelle partie de Clash of Code !
-    game_invite: Une nouvelle partie de Clash of Code a été lancée !
-    game_join: Rejoindre la partie
-    game_modes: Modes de jeu possibles
-    game_mode: Mode de jeu
-    game_players: Joueurs
-    game_languages: Langages autorisés
+  coc_invalid_link: Ce lien ne semble pas lié à une partie de Clash of Code valide !
+  coc_game_already_started: La partie de Clash of Code que vous avez fourni est déjà en cours / terminée !
+  coc_already_in_progress: Une partie de Clash of Code est déjà en cours sur ce serveur !
+  coc_successfully_invited: Vous avez bien invité les autres membres du serveur à rejoindre la partie !
+  coc_all_languages: Tous les langages
+  coc_role_not_set: >
+    Le rôle à mentionner lors des parties de Clash of Code n'a 
+    pas été configuré sur ce serveur ! Prévenez un administrateur !
+  coc_role_not_found: >
+    Le configuré rôle pour être mentionné lors des parties de Clash of Code
+    n'a pas été trouvé ! Prévenez un administrateur !
+  coc_channel_not_set: >
+    Le salon où envoyer les invitations pour les parties de Clash of Code n'a 
+    pas été configuré sur ce serveur ! Prévenez un administrateur !
+  coc_channel_not_found: >
+    Le configuré salon où envoyer les invitations pour les parties de Clash of Code
+    n'a pas été trouvé ! Prévenez un administrateur !
+  coc_started: "Commencé :"
+  coc_finished: "Terminé :"
+  coc_game_title: Nouvelle partie de Clash of Code !
+  coc_game_invite: Une nouvelle partie de Clash of Code a été lancée !
+  coc_game_join: Rejoindre la partie
+  coc_game_modes: Modes de jeu possibles
+  coc_game_mode: Mode de jeu
+  coc_game_players: Joueurs
+  coc_game_languages: Langages autorisés
 en:
   invalid_link: The link is not valid
   invalid_image_link: The link of the image is not valid
@@ -186,26 +185,25 @@ en:
   custom_invalid_args: Please provide valid arguments
   thread_project: Chat about the project
   nick_too_long: This nickname is too long
-  clash_of_code:
-    invalid_link: This link does not seem to be a valid Clash of Code game !
-    game_already_started: The Clash of Code game you provided is already started / finished !
-    already_in_progress: A Clash of Code game is already in progress on this server !
-    successfully_invited: You successfully invited the other members of the server to join the game !
-    all_languages: All languages
-    role_not_set: >
-      The role to mention when a Clash of Code game is started was not configured on this server ! Please warn an administrator !
-    role_not_found: >
-      The configured role to mention when a Clash of Code game is started was not found ! Please warn an administrator !
-    channel_not_set: >
-      The channel where to send the invitations for the Clash of Code games was not configured on this server ! Please warn an administrator !
-    channel_not_found: >
-      The configured channel where to send the invitations for the Clash of Code games was not found ! Please warn an administrator !
-    started: "Started:"
-    finished: "Finished:"
-    game_title: New Clash of Code game !
-    game_invite: A new Clash of Code game was started !
-    game_join: Join the game
-    game_modes: Possible game modes
-    game_mode: Game mode
-    game_players: Players
-    game_languages: Allowed languages
+  coc_invalid_link: This link does not seem to be a valid Clash of Code game !
+  coc_game_already_started: The Clash of Code game you provided is already started / finished !
+  coc_already_in_progress: A Clash of Code game is already in progress on this server !
+  coc_successfully_invited: You successfully invited the other members of the server to join the game !
+  coc_all_languages: All languages
+  coc_role_not_set: >
+    The role to mention when a Clash of Code game is started was not configured on this server ! Please warn an administrator !
+  coc_role_not_found: >
+    The configured role to mention when a Clash of Code game is started was not found ! Please warn an administrator !
+  coc_channel_not_set: >
+    The channel where to send the invitations for the Clash of Code games was not configured on this server ! Please warn an administrator !
+  coc_channel_not_found: >
+    The configured channel where to send the invitations for the Clash of Code games was not found ! Please warn an administrator !
+  coc_started: "Started:"
+  coc_finished: "Finished:"
+  coc_game_title: New Clash of Code game !
+  coc_game_invite: A new Clash of Code game was started !
+  coc_game_join: Join the game
+  coc_game_modes: Possible game modes
+  coc_game_mode: Game mode
+  coc_game_players: Players
+  coc_game_languages: Allowed languages

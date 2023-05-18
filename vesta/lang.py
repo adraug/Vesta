@@ -1,5 +1,7 @@
 import logging
 
+import discord
+
 from .tables import select, Guild
 
 logger = logging.getLogger(__name__)
@@ -10,7 +12,7 @@ class Lang:
         self.data = data
         self.session = session
 
-    def get(self, item, guild):
+    def get(self, item: str, guild: discord.Guild):
         lang = "en"
 
         if guild.preferred_locale[:2] in self.data:

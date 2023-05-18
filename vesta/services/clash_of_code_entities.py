@@ -1,10 +1,11 @@
-from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
+from typing import List, Optional
 
+import discord
 from discord import Embed
 
-from vesta import lang
+from vesta.tables import Guild
 
 
 class GameMode(Enum):
@@ -122,36 +123,41 @@ class ClashOfCodeGame:
 
         return self
 
-    def embed(self):
+    def embed(self, lang_file, guild: discord.Guild):
         emojis = {
             'True': '🟢',
             'False': '🔴'
         }
 
         description = f"""
-        **{lang.get("clash_of_code_game.started")}** {emojis[str(self.started)]}
-        **{lang.get("clash_of_code_game.finished")}** {emojis[str(self.finished)]}
+        **{lang_file.get("coc_started", guild)}** {emojis[str(self.started)]}
+        **{lang_file.get("coc_finished", guild)}** {emojis[str(self.finished)]}
         """
 
         embed = Embed(
-            title=lang.get("clash_of_code.game_title"),
+            title=lang_file.get("coc_game_title", guild),
             url=self.link,
             description=description
         )
 
         if not self.mode:
-            embed.add_field(name=lang.get("clash_of_code.game_modes"),
-                            value=f"`{'`, `'.join([mode.name.lower() for mode in self.modes])}`")
+            embed.add_field(name=lang_file.get("coc_game_modes", guild),
+                            value=f"`{'`, `'.join([mode.name.lower() for mode in self.modes])}`",
+                            inline=False)
         else:
-            embed.add_field(name=lang.get("clash_of_code.game_mode"),
-                            value=f"`{self.mode.lower()}`")
+            embed.add_field(name=lang_file.get("coc_game_mode", guild),
+                            value=f"`{self.mode.lower()}`",
+                            inline=False)
 
-        embed.add_field(name=lang.get("clash_of_code.game_players"),
-                        value=f"`{'`, `'.join([player.name for player in self.players])}`")
+        embed.add_field(name=lang_file.get("coc_game_players", guild),
+                        value=f"`{'`, `'.join([player.name for player in self.players])}`",
+                        inline=False)
 
         languages = f"`{'`, `'.join(self.programming_language)}`" \
                         if len(self.programming_language) >= 1 \
-                        else lang.get("clash_of_code.all_languages")
+                        else lang_file.get("coc_all_languages", guild)
 
-        embed.add_field(name=lang.get("clash_of_code.game_languages"),
+        embed.add_field(name=lang_file.get("coc_game_languages", guild),
                         value=languages)
+
+        return embed

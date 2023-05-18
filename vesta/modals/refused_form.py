@@ -2,7 +2,7 @@ import discord
 import logging
 import traceback
 
-from .. import vesta_client, lang
+from .. import vesta_client, lang_file
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +16,8 @@ class RefusedReasonForm(discord.ui.Modal, title=""):
     def __init__(self, presentation, interaction):
         logger.debug(f"RefusedReasonForm created for {interaction.user}")
 
-        self.title = lang.get("denied_form", interaction.guild)
-        self.reason.label = lang.get("denied_form_reason", interaction.guild)
+        self.title = lang_file.get("denied_form", interaction.guild)
+        self.reason.label = lang_file.get("denied_form_reason", interaction.guild)
         super().__init__()
         self.presentation = presentation
 
@@ -27,14 +27,14 @@ class RefusedReasonForm(discord.ui.Modal, title=""):
         presentation_embed = self.presentation.embed('222222')
         reason_embed = discord.Embed(
             colour=int('ff2222', 16),
-            title=lang.get("denied_feedback_title", interaction.guild),
-            description=lang.get("denied_feedback_content", interaction.guild) + f" {self.reason.value}",
+            title=lang_file.get("denied_feedback_title", interaction.guild),
+            description=lang_file.get("denied_feedback_content", interaction.guild) + f" {self.reason.value}",
         )
         user = await vesta_client.fetch_user(self.presentation.author_id)
         await user.send(embeds=[presentation_embed, reason_embed])
-        await interaction.response.send_message(lang.get("denied_registered", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("denied_registered", interaction.guild), ephemeral=True)
 
     async def on_error(self, interaction, error):
         logger.error(traceback.format_exc())
-        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)
 

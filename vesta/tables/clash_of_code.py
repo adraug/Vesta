@@ -5,8 +5,7 @@ from sqlalchemy.orm import relationship
 
 from . import Base
 from .. import session_maker
-from ..services.clash_of_code_entities import ClashOfCodeGame
-from ..services.clash_of_code_helper import ClashOfCodeHelper
+from ..services import ClashOfCodeGame
 
 session = session_maker()
 
@@ -14,7 +13,7 @@ class ClashOfCodeGuildGame(Base):
     __tablename__ = "clash_of_code_guild_game"
 
     guild_id = db.Column(db.BigInteger, nullable=False)
-    last_clash_id = db.Column(db.BigInteger)
+    last_clash_id = db.Column(db.String(32), nullable=True)
 
     db.PrimaryKeyConstraint(guild_id)
 
