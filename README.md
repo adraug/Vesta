@@ -1,10 +1,10 @@
 # Vesta
 
-![GitHub top language](https://img.shields.io/github/languages/top/adraug/VestaPy?style=flat-square&logo=python)
-![Lines of code](https://img.shields.io/tokei/lines/github/adraug/VestaPy?style=flat-square)
+![GitHub top language](https://img.shields.io/github/languages/top/adraug/Vesta?style=flat-square&logo=python)
+![Lines of code](https://img.shields.io/tokei/lines/github/adraug/Vesta?style=flat-square)
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/adraug/VestaPy?style=flat-square)
-![GitHub](https://img.shields.io/github/license/adraug/VestaPy?style=flat-square)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/adraug/Vesta?style=flat-square)
+![GitHub](https://img.shields.io/github/license/adraug/Vesta?style=flat-square)
 
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/adraug/vesta/latest?style=flat-square&logo=docker)](https://hub.docker.com/r/adraug/vesta)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/adraug/vesta/latest?style=flat-square)](https://hub.docker.com/r/adraug/vesta)
