@@ -12,7 +12,6 @@ class Guild(Base):
     projects_channel = db.Column(db.BigInteger)
     coc_channel = db.column(db.BigInteger)
     coc_role = db.Column(db.BigInteger)
-    coc_cooldown = db.Column(db.Integer)
     lang = db.Column(db.String(2))
 
     def __repr__(self):

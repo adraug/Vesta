@@ -80,18 +80,6 @@ async def change_clash_of_code_channel(interaction: discord.Interaction, coc_cha
 
     await interaction.response.send_message(lang.get("config_coc_channel", interaction.guild), ephemeral=True)
 
-@config_manager.command(name="coc-cooldown", description="Set clash of code cooldown")
-@app_commands.rename(coc_cooldown="cooldown")
-@app_commands.describe(coc_cooldown="The cooldown between two clash of code games (in seconds)")
-async def change_clash_of_code_cooldown(interaction: discord.Interaction, coc_cooldown: int):
-    logger.debug(f"Command /config coc-cooldown {coc_cooldown} used")
-
-    def update(g):
-        g.coc_cooldown = coc_cooldown
-    await update_config_element(interaction, update)
-
-    await interaction.response.send_message(lang.get("config_coc_cooldown", interaction.guild), ephemeral=True)
-
 @config_manager.command(name="lang", description="Set Guild Lang")
 @app_commands.rename(guild_lang='lang')
 @app_commands.describe(guild_lang="The lang for the bot")
