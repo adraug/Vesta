@@ -1,20 +1,14 @@
 # Vesta
 
-![GitHub top language](https://img.shields.io/github/languages/top/adraug/vesta?style=plastic)
-![Lines of code](https://img.shields.io/tokei/lines/github/adraug/vesta?style=plastic)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/adraug/vesta?style=plastic)
-![GitHub Release Date](https://img.shields.io/github/release-date/adraug/vesta)
-![GitHub](https://img.shields.io/github/license/adraug/vesta?style=plastic)
+![GitHub top language](https://img.shields.io/github/languages/top/adraug/VestaPy?style=flat-square&logo=python)
+![Lines of code](https://img.shields.io/tokei/lines/github/adraug/VestaPy?style=flat-square)
 
-[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/adraug/vesta?arch=amd64&style=plastic)](https://hub.docker.com/r/adraug/vesta)
-[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/adraug/vesta)](https://hub.docker.com/r/adraug/vesta)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/adraug/VestaPy?style=flat-square)
+![GitHub](https://img.shields.io/github/license/adraug/VestaPy?style=flat-square)
 
-![Developers][developers-shield]
-[![Adrien][adrien-shield]][adrien-url]
-[![Lucie][lucie-shield]][lucie-url]
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/adraug/vesta/latest?style=flat-square&logo=docker)](https://hub.docker.com/r/adraug/vesta)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/adraug/vesta/latest?style=flat-square)](https://hub.docker.com/r/adraug/vesta)
 
-![Confiance][confiance-shield]
-[![GravenDev][gravendev-shield]][gravendev-url]
 
 Vesta est un bot discord avec des fonctionnalitées assez spécifiques, mais non proposées par d'autres.
 
