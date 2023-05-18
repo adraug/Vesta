@@ -19,7 +19,6 @@ fr:
   permissions_error: Vous n'avez pas les permissions pour exécuter cette commande
   config_review: Le salon de revue à bien été modifié
   config_projects: Le salon de projets à bien été modifié
-  config_coc_role: Le role à mentionner lors des parties de Clash of Code a bien été config
   config_lang: La langue a bien été modifiée
   nickname_banned: Vous avez été banni du système de renommage
   nickname_incorrect_title: ⚠️ Pseudo incorrect !
