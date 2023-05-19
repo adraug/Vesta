@@ -18,6 +18,8 @@ class GameMode(Enum):
     REVERSE = 1
     SHORTEST = 2
 
+    def __repr__(self):
+        return f"coc_mode_{self.name.lower()}"
 
 class Role(Enum):
     """
@@ -27,6 +29,14 @@ class Role(Enum):
     OWNER = 0
     STANDARD = 1
 
+class State(Enum):
+    """
+    Represents a Clash of Code game state
+    """
+
+    PENDING = 0
+    RUNNING = 1
+    FINISHED = 2
 
 @dataclass
 class ClashOfCodePlayer:
@@ -73,12 +83,11 @@ class ClashOfCodeGame:
     """
 
     link: str
-    started: bool
-    finished: bool
+    state: State
     players: List[ClashOfCodePlayer]
     programming_language: List[str]
     modes: List[GameMode]
-    mode: Optional[str]
+    mode: Optional[GameMode]
 
     start_time: datetime.datetime
     end_time: Optional[datetime.datetime]
@@ -91,6 +100,9 @@ class ClashOfCodeGame:
         """
 
         self.hydrate(**kwargs)
+
+    @property
+    def id(self): return self.link.split("/")[-1]
 
     def hydrate(self, *,
                 publicHandle: str,
@@ -117,8 +129,7 @@ class ClashOfCodeGame:
         """
 
         self.link = f"https://www.codingame.com/clashofcode/clash/{publicHandle}"
-        self.started = started
-        self.finished = finished
+        self.state = State.FINISHED if finished else State.RUNNING if started else State.PENDING
         self.players = [
             ClashOfCodePlayer(**player)
             for player in players
@@ -128,7 +139,7 @@ class ClashOfCodeGame:
             GameMode[mode.upper()]
             for mode in modes
         ]
-        self.mode = mode
+        self.mode = GameMode[mode.upper()]
 
         self.start_time = datetime.datetime.strptime(startTime, "%B %d, %Y, %I:%M:%S %p")
         self.end_time = datetime.datetime.strptime(endTime, "%B %d, %Y, %I:%M:%S %p") if endTime else None
@@ -136,34 +147,31 @@ class ClashOfCodeGame:
         return self
 
     def embed(self, lang_file, guild: discord.Guild):
-        emojis = {
-            "True": lang_file.get("general_yes", guild),
-            "False": lang_file.get("general_no", guild)
-        }
-
         embed = Embed(
             title=lang_file.get("coc_game_title", guild),
             color=discord.Color.blurple(),
         )
 
-        embed.add_field(name=lang_file.get("coc_started", guild),
-                        value=emojis[str(self.started)],
-                        inline=True)
-        embed.add_field(name=lang_file.get("coc_finished", guild),
-                        value=emojis[str(self.finished)],
+        embed.add_field(name=lang_file.get("coc_game_state", guild),
+                        value=lang_file.get(f"coc_game_state_{self.state.name.lower()}", guild),
                         inline=True)
 
         if not self.mode:
             embed.add_field(name=lang_file.get("coc_game_modes", guild),
                             value=' - ' + "\n - ".join(
-                                [lang_file.get(f"coc_mode_{mode.name.lower()}", guild) for mode in self.modes]),
+                                [lang_file.get(repr(self.mode), guild) for mode in self.modes]),
                             inline=False)
         else:
             embed.add_field(name=lang_file.get("coc_game_mode", guild),
-                            value=f"`{self.mode.lower()}`",
+                            value=lang_file.get(repr(self.mode), guild),
                             inline=False)
 
-        if not self.finished:
+        if self.state == State.FINISHED:
+            winner = sorted(self.players, key=lambda player: player.rank)[0]
+            embed.add_field(name=lang_file.get("coc_game_winner", guild),
+                            value=f"`{winner.name}`",
+                            inline=False)
+        else:
             embed.add_field(name=lang_file.get("coc_game_players", guild),
                             value=f"`{'`, `'.join([player.name for player in self.players])}`",
                             inline=False)
@@ -174,11 +182,5 @@ class ClashOfCodeGame:
 
             embed.add_field(name=lang_file.get("coc_game_languages", guild),
                             value=languages)
-        else:
-            # winner is player with the best "rank" field
-            winner = sorted(self.players, key=lambda player: player.rank)[0]
-            embed.add_field(name=lang_file.get("coc_game_winner", guild),
-                            value=f"`{winner.name}`",
-                            inline=False)
 
         return embed

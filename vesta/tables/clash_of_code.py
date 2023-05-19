@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 from . import Base
 from .. import session_maker
-from ..services import ClashOfCodeGame, clash_of_code_helper
+from ..services import ClashOfCodeGame, clash_of_code_helper, State
 
 session = session_maker()
 
@@ -35,7 +35,7 @@ class ClashOfCodeGuildGame(Base):
             return True
 
         entity = self.fetch()
-        return entity is None or entity.finished
+        return entity is None or entity.state == State.FINISHED
 
     def __repr__(self):
         return f"Clash of Code Guild Games (guild_id={self.guild_id}, last_clash_id={self.last_clash_id})"

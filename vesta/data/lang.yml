@@ -99,15 +99,18 @@ fr:
   coc_channel_not_found: >
     Le configuré salon où envoyer les invitations pour les parties de Clash of Code
     n'a pas été trouvé ! Prévenez un administrateur !
-  coc_started: "Commencé :"
-  coc_finished: "Terminé :"
+  coc_game_state: État de la partie
+  coc_game_state_pending: ⏳ En attente
+  coc_game_state_running: ⚡ En cours
+  coc_game_state_finished: 🏁 Terminée
   coc_game_title: ⭐ Nouvelle partie de Clash of Code !
   coc_game_invite: Une nouvelle partie de Clash of Code a été lancée !
   coc_game_join: Rejoindre la partie
-  coc_game_modes: 🎮 Modes de jeu possibles
-  coc_game_mode: 🎮 Mode de jeu
-  coc_game_players: 🧩 Joueurs
-  coc_game_languages: ⌨️ Langages autorisés
+  coc_game_modes: "Modes de jeu possibles :"
+  coc_game_mode: "Mode de jeu :"
+  coc_game_players: "Joueurs :"
+  coc_game_winner: "Gagnant :"
+  coc_game_languages: "Langages autorisés :"
   coc_mode_fastest: ⚡ Le plus rapide
   coc_mode_shortest: 📏 Le plus court
   coc_mode_reverse: 🔄 Inversé
@@ -205,15 +208,18 @@ en:
     The channel where to send the invitations for the Clash of Code games was not configured on this server ! Please warn an administrator !
   coc_channel_not_found: >
     The configured channel where to send the invitations for the Clash of Code games was not found ! Please warn an administrator !
-  coc_started: "Started:"
-  coc_finished: "Finished:"
+  coc_game_state: "Game state:"
+  coc_game_state_pending: ⏳ Pending
+  coc_game_state_running: ⚡ Running
+  coc_game_state_finished: 🏁 Finished
   coc_game_title: ⭐ New Clash of Code game !
   coc_game_invite: A new Clash of Code game was started !
   coc_game_join: Join the game
-  coc_game_modes: 🎮 Possible game modes
-  coc_game_mode: 🎮 Game mode
-  coc_game_players: 🧩 Players
-  coc_game_languages: ⌨️ Allowed languages
+  coc_game_modes: "Possible game modes:"
+  coc_game_mode: "Game mode:"
+  coc_game_players: "Players:"
+  coc_game_winner: "Winner:"
+  coc_game_languages: "Allowed languages:"
   coc_mode_fastest: ⚡ Fastest
   coc_mode_shortest: 📏 Shortest
   coc_mode_reverse: 🔄 Reverse

@@ -6,6 +6,7 @@ import discord
 from discord import app_commands
 
 from . import session_maker
+from .services import clash_of_code_helper
 from .tables import CustomCommand, select
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ class Vesta(discord.Client):
 
     async def on_ready(self):
         logger.info(f"Logged on as {self.user}")
+
+        clash_of_code_helper.resume_update_loops()
 
         for com in self.tree.get_commands():
             logger.debug(f"Globals {com} name : {com.name}")
