@@ -99,7 +99,7 @@ fr:
   coc_channel_not_found: >
     Le configuré salon où envoyer les invitations pour les parties de Clash of Code
     n'a pas été trouvé ! Prévenez un administrateur !
-  coc_game_state: État de la partie
+  coc_game_state: "État de la partie :"
   coc_game_state_pending: ⏳ En attente
   coc_game_state_running: ⚡ En cours
   coc_game_state_finished: 🏁 Terminée

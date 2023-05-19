@@ -79,7 +79,7 @@ async def coc(interaction: discord.Interaction, link: str):
         emoji="🎮"
     ))
 
-    embed = game.embed(lang_file, interaction.guild)
+    embed = game.embed(interaction.guild)
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url)
 
     announcement_message = await channel.send(

@@ -108,13 +108,16 @@ def start_update_loop(message: discord.Message, guild: discord.Guild) -> None:
     guild_game: ClashOfCodeGuildGame = session.scalar(r)
     fetched_game: ClashOfCodeGame = guild_game.fetch()
 
-    # Start a cron that runs every 15 seconds asynchronously
-    # This will update the message with the latest information
-    # about the game
-    async def update_loop(game: ClashOfCodeGame):
+    async def update_loop(game: ClashOfCodeGame) -> None:
+        """
+        The update loop that runs every 10 seconds to update the message
+
+        :param game: The game object to update
+        :return: Nothing
+        """
         while True:
             game = update(game)
-            await message.edit(embed=game.embed(lang_file, guild))
+            await message.edit(embed=game.embed(guild))
 
             if game.state == State.FINISHED:
                 logger.debug(f"[{uid}] Game {game.id} has finished, deleting from database")
