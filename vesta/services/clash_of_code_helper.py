@@ -5,6 +5,7 @@ from typing import Optional
 
 import discord
 import requests
+from discord.utils import MISSING
 from sqlalchemy import select
 
 from . import ClashOfCodeGame, State
@@ -96,7 +97,7 @@ def start_update_loop(message: discord.Message, guild: discord.Guild) -> None:
     :param guild: The guild to update the data for
     :return: Nothing
     """
-    from .. import session_maker, lang_file
+    from .. import session_maker
     from ..tables import ClashOfCodeGuildGame
     session = session_maker()
 
@@ -117,7 +118,7 @@ def start_update_loop(message: discord.Message, guild: discord.Guild) -> None:
         """
         while True:
             game = update(game)
-            await message.edit(embed=game.embed(guild))
+            await message.edit(embed=game.embed(guild), view=None if game.state == State.FINISHED else MISSING)
 
             if game.state == State.FINISHED:
                 logger.debug(f"[{uid}] Game {game.id} has finished, deleting from database")

@@ -6,8 +6,6 @@ from typing import List, Optional
 import discord
 from discord import Embed
 
-from vesta.tables import Guild
-
 
 class GameMode(Enum):
     """
@@ -44,6 +42,16 @@ class State(Enum):
         """
         return f"coc_game_state_{self.name.lower()}"
 
+    def __str__(self):
+        """
+        Gives the emoji for the state
+        """
+        return {
+            State.PENDING: "🕒",
+            State.RUNNING: "🔥",
+            State.FINISHED: "🏁"
+        }[self]
+
 @dataclass
 class ClashOfCodePlayer:
     """
@@ -53,6 +61,7 @@ class ClashOfCodePlayer:
     name: str
     role: Role
     rank: int
+    state: State
 
     def __init__(self, **kwargs):
         """
@@ -67,6 +76,7 @@ class ClashOfCodePlayer:
                 codingamerNickname: str,
                 status: str,
                 rank: Optional[int],
+                testSessionStatus: Optional[str] = None,
                 **ignored) -> "ClashOfCodePlayer":
         """
         Hydrates the object with the given data
@@ -78,6 +88,9 @@ class ClashOfCodePlayer:
         self.name = codingamerNickname
         self.role = Role[status.upper()] or Role.STANDARD
         self.rank = rank
+        self.state = State.PENDING if testSessionStatus is None\
+            else State.FINISHED if testSessionStatus == "COMPLETED" \
+            else State.RUNNING
 
         return self
 
@@ -187,7 +200,7 @@ class ClashOfCodeGame:
                             inline=True)
         else:
             embed.add_field(name=lang_file.get("coc_game_players", guild),
-                            value=f"`{'`, `'.join([player.name for player in self.players])}`",
+                            value=f"`{'`, `'.join([f'{str(player.state)} {player.name}' for player in self.players])}`",
                             inline=False)
 
             languages = f"`{'`, `'.join(self.programming_language)}`" \
