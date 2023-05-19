@@ -6,6 +6,7 @@ import discord
 from discord import app_commands
 
 from . import session_maker
+from .services import clash_of_code_helper
 from .tables import CustomCommand, select
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,8 @@ class Vesta(discord.Client):
 
     async def on_ready(self):
         logger.info(f"Logged on as {self.user}")
+
+        clash_of_code_helper.resume_update_loops()
 
         for com in self.tree.get_commands():
             logger.debug(f"Globals {com} name : {com.name}")
@@ -57,13 +60,21 @@ class Vesta(discord.Client):
             if active:
                 await self.tree.sync(guild=guild)
 
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         logger.debug(f"Member joined : {member}!")
+        if not (await member.guild.fetch_member(self.user.id)).guild_permissions.manage_nicknames:
+            logger.debug(f"Bot doesn't have manage nicknames permission on {member.guild}")
+            return
+
         if not re.match(regex_name, member.display_name):
             await member.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         logger.debug(f"Member update : {after}!")
+        if not (await after.guild.fetch_member(self.user.id)).guild_permissions.manage_nicknames:
+            logger.debug(f"Bot doesn't have manage nicknames permission on {after.guild}")
+            return
+
         if not after.guild_permissions.manage_nicknames and not re.match(regex_name, after.display_name):
             await after.edit(nick=f"{random.choice(names).capitalize()}{random.choice(adjectives).capitalize()}")
 

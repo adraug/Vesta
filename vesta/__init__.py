@@ -7,7 +7,7 @@ session_maker = sessionmaker()
 from .lang import Lang
 from yaml import load, Loader
 with open("vesta/data/lang.yml") as file:
-    lang = Lang(load(file.read(), Loader), session_maker)
+    lang_file = Lang(load(file.read(), Loader), session_maker)
 
 from .client import Vesta
 

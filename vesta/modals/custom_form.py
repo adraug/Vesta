@@ -6,7 +6,7 @@ from discord import app_commands
 import discord.ui
 from sqlalchemy import select
 
-from .. import session_maker, vesta_client, lang
+from .. import session_maker, vesta_client, lang_file
 from ..tables import User, CustomCommand
 
 logger = logging.getLogger(__name__)
@@ -51,12 +51,12 @@ class CustomSlashForm(discord.ui.Modal, title=""):
     def __init__(self, keyword, interaction):
         logger.debug(f"CustomSlashForm created for {interaction.user}")
 
-        self.title = lang.get("custom_form", interaction.guild)
-        self.command_title.label = lang.get("custom_form_title", interaction.guild)
-        self.command_content.label = lang.get("custom_form_content", interaction.guild)
-        self.command_url.label = lang.get("custom_form_link", interaction.guild)
-        self.command_image.label = lang.get("custom_form_image", interaction.guild)
-        self.command_colour.label = lang.get("custom_form_color", interaction.guild)
+        self.title = lang_file.get("custom_form", interaction.guild)
+        self.command_title.label = lang_file.get("custom_form_title", interaction.guild)
+        self.command_content.label = lang_file.get("custom_form_content", interaction.guild)
+        self.command_url.label = lang_file.get("custom_form_link", interaction.guild)
+        self.command_image.label = lang_file.get("custom_form_image", interaction.guild)
+        self.command_colour.label = lang_file.get("custom_form_color", interaction.guild)
 
         super().__init__()
         self.keyword = keyword
@@ -67,7 +67,7 @@ class CustomSlashForm(discord.ui.Modal, title=""):
         command_title = self.command_title.value.strip()
         command_content = self.command_content.value.strip()
         if not command_title or not command_content:
-            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
+            return await interaction.response.send_message(lang_file.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
         command_url = self.command_url.value
         if command_url and not re.match(http_regex, command_url):
@@ -75,7 +75,7 @@ class CustomSlashForm(discord.ui.Modal, title=""):
                 command_url = 'https://' + command_url
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_link", interaction.guild),
+                    content=lang_file.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.command_image.value
@@ -84,7 +84,7 @@ class CustomSlashForm(discord.ui.Modal, title=""):
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_image_link", interaction.guild),
+                    content=lang_file.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
         r = select(User).where(User.id == interaction.user.id)
@@ -115,10 +115,10 @@ class CustomSlashForm(discord.ui.Modal, title=""):
             session.rollback()
 
             logger.error(traceback.format_exc())
-            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+            return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild),
                                                            ephemeral=True)
 
-        await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
         async def command(interaction: discord.Interaction):
@@ -133,7 +133,7 @@ class CustomSlashForm(discord.ui.Modal, title=""):
 
     async def on_error(self, interaction, error):
         logger.error(traceback.format_exc())
-        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 class CustomMenuForm(discord.ui.Modal, title=""):
@@ -170,12 +170,12 @@ class CustomMenuForm(discord.ui.Modal, title=""):
     def __init__(self, content, author, interaction):
         logger.debug(f"CustomMenuForm created for {interaction.user}")
 
-        self.title = lang.get("custom_form", interaction.guild)
-        self.command_keyword.label = lang.get("custom_form_keyword", interaction.guild)
-        self.command_title.label = lang.get("custom_form_title", interaction.guild)
-        self.command_url.label = lang.get("custom_form_link", interaction.guild)
-        self.command_image.label = lang.get("custom_form_image", interaction.guild)
-        self.command_colour.label = lang.get("custom_form_color", interaction.guild)
+        self.title = lang_file.get("custom_form", interaction.guild)
+        self.command_keyword.label = lang_file.get("custom_form_keyword", interaction.guild)
+        self.command_title.label = lang_file.get("custom_form_title", interaction.guild)
+        self.command_url.label = lang_file.get("custom_form_link", interaction.guild)
+        self.command_image.label = lang_file.get("custom_form_image", interaction.guild)
+        self.command_colour.label = lang_file.get("custom_form_color", interaction.guild)
 
         super().__init__()
         self.content = content
@@ -186,11 +186,11 @@ class CustomMenuForm(discord.ui.Modal, title=""):
 
         keyword = self.command_keyword.value.lower()
         if not re.match(custom_regex, keyword):
-            return await interaction.response.send_message(lang.get("invalid_keyword", interaction.guild), ephemeral=True)
+            return await interaction.response.send_message(lang_file.get("invalid_keyword", interaction.guild), ephemeral=True)
 
         command_title = self.command_title.value.strip()
         if not command_title:
-            return await interaction.response.send_message(lang.get("custom_invalid_args", interaction.guild), ephemeral=True)
+            return await interaction.response.send_message(lang_file.get("custom_invalid_args", interaction.guild), ephemeral=True)
 
         command_url = self.command_url.value
         if command_url and not re.match(http_regex, command_url):
@@ -198,7 +198,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
                 command_url = 'https://' + command_url
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_link", interaction.guild),
+                    content=lang_file.get("invalid_link", interaction.guild),
                     ephemeral=True,
                 )
         image_url = self.command_image.value
@@ -207,7 +207,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
                 image_url = 'https://' + image_url
             else:
                 return await interaction.response.send_message(
-                    content=lang.get("invalid_image_link", interaction.guild),
+                    content=lang_file.get("invalid_image_link", interaction.guild),
                     ephemeral=True,
                 )
         r = select(User).where(User.id == self.author.id)
@@ -222,7 +222,7 @@ class CustomMenuForm(discord.ui.Modal, title=""):
         r = select(CustomCommand).where(CustomCommand.guild_id == interaction.guild_id)
         r = r.where(CustomCommand.keyword == keyword)
         if session.scalar(r):
-            return await interaction.response.send_message(lang.get("command_already_exist", interaction.guild), ephemeral=True)
+            return await interaction.response.send_message(lang_file.get("command_already_exist", interaction.guild), ephemeral=True)
         custom_command = CustomCommand(
             guild_id=interaction.guild_id,
             keyword=keyword,
@@ -241,10 +241,10 @@ class CustomMenuForm(discord.ui.Modal, title=""):
             session.rollback()
 
             logger.error(traceback.format_exc())
-            return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild),
+            return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild),
                                                            ephemeral=True)
 
-        await interaction.response.send_message(lang.get("command_created", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("command_created", interaction.guild), ephemeral=True)
 
         @app_commands.guild_only()
         async def command(interaction: discord.Interaction):
@@ -257,4 +257,4 @@ class CustomMenuForm(discord.ui.Modal, title=""):
 
     async def on_error(self, interaction, error):
         logger.error(traceback.format_exc())
-        await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+        await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)

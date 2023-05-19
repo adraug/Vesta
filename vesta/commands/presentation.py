@@ -5,7 +5,7 @@ import traceback
 
 from typing import Optional
 
-from .. import vesta_client, session_maker, lang
+from .. import vesta_client, session_maker, lang_file
 from ..modals import PresentationForm
 from ..tables import Presentation, select, or_, Guild, Ban
 
@@ -22,13 +22,13 @@ async def presentation(interaction: discord.Interaction):
     guild = session.scalar(r)
     if not guild or not guild.review_channel or not guild.projects_channel:
         return await interaction.response.send_message(
-            lang.get("presentations_not_available", interaction.guild), ephemeral=True)
+            lang_file.get("presentations_not_available", interaction.guild), ephemeral=True)
 
     r = select(Ban).where(Ban.user_id == interaction.user.id).where(Ban.guild_id == interaction.guild.id)
     response = session.scalar(r)
     if response and response.presentation_banned:
         return await interaction.response.send_message(
-            lang.get("presentations_banned", interaction.guild),
+            lang_file.get("presentations_banned", interaction.guild),
             ephemeral=True)
     await interaction.response.send_modal(PresentationForm(interaction))
 
@@ -41,14 +41,14 @@ class PresentationManage(app_commands.Group, name="presentationmanage", descript
         logger.debug(f"Error {error} raised")
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(
-                lang.get("permissions_error", interaction.guild), ephemeral=True)
+                lang_file.get("permissions_error", interaction.guild), ephemeral=True)
         elif isinstance(error, app_commands.errors.BotMissingPermissions):
             await interaction.response.send_message(
-                lang.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
+                lang_file.get("bot_permissions_error", interaction.guild) + f" {', '.join(error.missing_permissions)}",
                 ephemeral=True)
         else:
             logger.error(traceback.format_exc())
-            await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+            await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)
 
 
 presentation_manage = PresentationManage()
@@ -60,19 +60,19 @@ async def show(interaction: discord.Interaction, research: Optional[str] = None,
     logger.debug(f"Command /presentationmanage show [research={research},user={user}] used")
     if not (research or user):
         return await interaction.response.send_message(
-            lang.get("minimum_one_parameter", interaction.guild), ephemeral=True)
+            lang_file.get("minimum_one_parameter", interaction.guild), ephemeral=True)
     if user:
         r = select(Presentation).where(Presentation.author_id == user.id)
     else:
         if not research.isdecimal() or int(research) > 2 ** 63 - 1:
             return await interaction.response.send_message(
-                content=lang.get("invalid_number", interaction.guild),
+                content=lang_file.get("invalid_number", interaction.guild),
                 ephemeral=True)
         r = select(Presentation).where(or_(Presentation.id == research, Presentation.author_id == research))
     presentations = session.scalars(r).all()
     if not len(presentations):
         return await interaction.response.send_message(
-            content=lang.get("no_result", interaction.guild),
+            content=lang_file.get("no_result", interaction.guild),
             ephemeral=True,
         )
     if len(presentations) == 1:
@@ -81,7 +81,7 @@ async def show(interaction: discord.Interaction, research: Optional[str] = None,
         return await interaction.response.send_message(embed=embed)
     embed = discord.Embed(
         colour=int('222222', 16),
-        title=lang.get("user_result_title", interaction.guild)
+        title=lang_file.get("user_result_title", interaction.guild)
     )
     for presentation in presentations:
         emoji = '🕑'
@@ -112,10 +112,10 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
         session.rollback()
 
         logger.error(traceback.format_exc())
-        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+        return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
-        content=f"{user} " + lang.get("user_result_title", interaction.guild))
+        content=f"{user} " + lang_file.get("user_result_title", interaction.guild))
 
 
 @presentation_manage.command(description="Unban a user from submitting a presentation")
@@ -127,7 +127,7 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
     response = session.scalar(r)
     if not (response and response.presentation_banned):
         return await interaction.response.send_message(
-            content=f"{user} " + lang.get("presentations_not_banned", interaction.guild))
+            content=f"{user} " + lang_file.get("presentations_not_banned", interaction.guild))
     response.presentation_banned = False
 
     try:
@@ -136,10 +136,10 @@ async def unban(interaction: discord.Interaction, user: discord.Member):
         session.rollback()
 
         logger.error(traceback.format_exc())
-        return await interaction.response.send_message(lang.get("unexpected_error", interaction.guild), ephemeral=True)
+        return await interaction.response.send_message(lang_file.get("unexpected_error", interaction.guild), ephemeral=True)
 
     await interaction.response.send_message(
-        content=f"{user} " + lang.get("presentations_unban", interaction.guild))
+        content=f"{user} " + lang_file.get("presentations_unban", interaction.guild))
 
 
 @presentation_manage.command(name="list", description="Show the banlist")
@@ -155,8 +155,8 @@ async def banlist(interaction: discord.Interaction, page: Optional[int] = 0):
     for result in results:
         ban_list += f"<@{result.user_id}>\n"
 
-    banned_embed = discord.Embed(title=lang.get("presentations_list_title", interaction.guild), description=ban_list)
-    banned_embed.set_footer(text=lang.get("list_page", interaction.guild) + f" {page}")
+    banned_embed = discord.Embed(title=lang_file.get("presentations_list_title", interaction.guild), description=ban_list)
+    banned_embed.set_footer(text=lang_file.get("list_page", interaction.guild) + f" {page}")
 
     await interaction.response.send_message(embed=banned_embed,
                                             allowed_mentions=discord.AllowedMentions().none())
